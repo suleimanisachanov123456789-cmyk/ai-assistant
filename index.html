@@ -45,13 +45,13 @@
     <div class="chat-messages" id="chatMessages">
         <div class="msg-row ai">
             <div class="avatar">AI</div>
-            <div class="bubble" id="welcomeText">Привет! Я версия «Среда». База фандомов, ролевых игр и история чата активированы.</div>
+            <div class="bubble" id="welcomeText">Привет! Я версия «Среда». Логика, фандомы и память диалога активны.</div>
         </div>
     </div>
     
     <div class="input-wrapper">
         <div class="input-box">
-            <input type="text" id="userInput" placeholder="Напиши сообщение, начни ролку или задай вопрос..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <input type="text" id="userInput" placeholder="Напиши сообщение, пример или начни ролку..." onkeydown="if(event.key==='Enter')sendMessage()">
         </div>
         <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
@@ -59,7 +59,6 @@
 
 <script>
     const WORKER_URL = "https://raspy-rain-b35e.suleimanisachanov123456789.workers.dev";
-    
     let chatHistory = [];
 
     function changeMode() {
@@ -69,10 +68,10 @@
         
         if (mode === 'wednesday') {
             title.innerText = "Версия: Среда";
-            welcome.innerText = "Привет! Я версия «Среда». Нацелена на точные науки, логику и анализ.";
+            welcome.innerText = "Привет! Я версия «Среда». Нацелена на точные науки, анализ и логику.";
         } else {
             title.innerText = "Версия: Четверг";
-            welcome.innerText = "Йоу! Я версия «Четверг». Обсуждаем игры, фандомы, ролки и генерируем идеи!";
+            welcome.innerText = "Йоу! Я версия «Четверг». Обсуждаем игры, ролки, фандомы и генерируем идеи!";
         }
     }
 
