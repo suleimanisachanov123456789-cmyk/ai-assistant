@@ -5,55 +5,99 @@
     <title>Среда и Четверг — AI Assistant</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #131314; color: #e3e3e3; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .app-container { width: 900px; height: 750px; background: #1e1f20; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 8px 24px rgba(0,0,0,0.5); overflow: hidden; }
-        .app-header { padding: 18px 24px; background: #1e1f20; border-bottom: 1px solid #2d2e30; font-size: 16px; font-weight: 600; color: #f1f3f4; display: flex; justify-content: space-between; align-items: center; }
-        .header-controls { display: flex; gap: 12px; align-items: center; }
-        .mode-select { background: #2b2c2f; color: #fff; border: 1px solid #444; padding: 6px 12px; border-radius: 6px; font-size: 14px; outline: none; cursor: pointer; }
-        .clear-btn { background: #3c4043; color: #e3e3e3; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; }
-        .clear-btn:hover { background: #5f6368; }
-        .chat-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; }
-        .msg-row { display: flex; gap: 14px; max-width: 85%; }
-        .msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
-        .msg-row.ai { align-self: flex-start; }
-        .avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; flex-shrink: 0; background: #3c4043; color: #fff; }
-        .user .avatar { background: #8ab4f8; color: #202124; }
-        .bubble { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
-        .user .bubble { background: #2b2c2f; color: #f1f3f4; border-top-right-radius: 3px; }
-        .ai .bubble { background: #1e1f20; color: #e3e3e3; border-top-left-radius: 3px; border: 1px solid #2d2e30; }
-        .input-wrapper { padding: 18px 24px; background: #1e1f20; border-top: 1px solid #2d2e30; display: flex; gap: 12px; align-items: center; }
-        .input-box { flex: 1; background: #2b2c2f; border-radius: 24px; padding: 10px 18px; display: flex; align-items: center; }
-        .input-box input { flex: 1; background: transparent; border: none; color: #fff; font-size: 14px; outline: none; }
-        .send-btn { background: #8ab4f8; color: #202124; border: none; width: 40px; height: 40px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #131314; color: #e3e3e3; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Левая боковая панель */
+        .sidebar { width: 280px; background: #1e1f20; border-right: 1px solid #2d2e30; display: flex; flex-direction: column; padding: 16px; gap: 12px; }
+        .new-chat-btn { background: #282a2c; color: #e3e3e3; border: 1px solid #3c4043; padding: 12px 16px; border-radius: 24px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 500; transition: background 0.2s; }
+        .new-chat-btn:hover { background: #3c4043; }
+        
+        .features-box { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .features-title { font-size: 11px; color: #9aa0a6; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 8px; margin-bottom: 4px; }
+        .feature-item { padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #c4c7c5; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; background: #252628; border: 1px solid #2f3133; }
+        .feature-item:hover { background: #323538; color: #fff; }
+
+        .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+        .history-item { padding: 8px 12px; border-radius: 6px; font-size: 13px; color: #9aa0a6; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover { background: #282a2c; color: #fff; }
+
+        /* Основная область */
+        .main-container { flex: 1; display: flex; flex-direction: column; background: #131314; height: 100vh; position: relative; }
+        .app-header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; background: #131314; border-bottom: 1px solid #2d2e30; }
+        .mode-select { background: #1e1f20; color: #e3e3e3; border: 1px solid #3c4043; padding: 6px 14px; border-radius: 8px; font-size: 14px; outline: none; cursor: pointer; }
+        
+        /* Чат */
+        .chat-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; max-width: 850px; width: 100%; margin: 0 auto; scroll-behavior: smooth; }
+        .msg-row { display: flex; gap: 16px; width: 100%; }
+        .msg-row.user { justify-content: flex-end; }
+        .avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; flex-shrink: 0; background: #444746; color: #fff; }
+        .user .avatar { background: #8ab4f8; color: #202124; order: 2; }
+        .bubble { padding: 14px 18px; border-radius: 16px; font-size: 15px; line-height: 1.6; max-width: 75%; word-wrap: break-word; }
+        .user .bubble { background: #2b2c2f; color: #f1f3f4; border-top-right-radius: 4px; }
+        .ai .bubble { background: #1e1f20; color: #e3e3e3; border-top-left-radius: 4px; border: 1px solid #2d2e30; }
+        
+        /* Нижняя панель ввода */
+        .input-container { padding: 16px 24px 24px 24px; display: flex; justify-content: center; background: #131314; }
+        .input-box-wrapper { width: 100%; max-width: 850px; background: #1e1f20; border: 1px solid #3c4043; border-radius: 28px; padding: 12px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+        .input-box-wrapper input { flex: 1; background: transparent; border: none; color: #fff; font-size: 15px; outline: none; }
+        .send-btn { background: #8ab4f8; color: #202124; border: none; width: 38px; height: 38px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
         .send-btn:hover { background: #aecbfa; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="app-header">
-        <span id="headerTitle">Версия: Среда</span>
-        <div class="header-controls">
-            <button class="clear-btn" onclick="clearHistory()" title="Очистить историю чата">Очистить чат</button>
-            <select class="mode-select" id="modeSelect" onchange="changeMode()">
-                <option value="wednesday">Среда (Умный)</option>
-                <option value="thursday">Четверг (Креативный)</option>
-            </select>
+<!-- Левая боковая панель с иконками возможностей -->
+<div class="sidebar">
+    <button class="new-chat-btn" onclick="startNewChat()">
+        <span>＋</span> Новый чат
+    </button>
+
+    <div class="features-box">
+        <div class="features-title">Возможности ИИ</div>
+        <div class="feature-item" onclick="quickPrompt('Реши математический пример: 145 * 38 - 120')">
+            <span>📐</span> Математический калькулятор
         </div>
+        <div class="feature-item" onclick="quickPrompt('Объясни основы программирования и переменные')">
+            <span>💻</span> Обучение программированию
+        </div>
+        <div class="feature-item" onclick="quickPrompt('Как работают тепловые трубки в процессорах?')">
+            <span>⚡</span> Физика и наука
+        </div>
+        <div class="feature-item" onclick="quickPrompt('Давай начнем ролевую игру')">
+            <span>🎮</span> Ролевые игры и фандомы
+        </div>
+    </div>
+
+    <div class="features-title" style="margin-top: 15px;">История чатов</div>
+    <div class="history-list" id="historyList">
+        <div class="history-item">Текущая сессия</div>
+    </div>
+</div>
+
+<!-- Основная область чата -->
+<div class="main-container">
+    <div class="app-header">
+        <span id="headerTitle" style="font-weight: 500; font-size: 15px; color: #c4c7c5;">Версия: Среда (Умный наставник)</span>
+        <select class="mode-select" id="modeSelect" onchange="changeMode()">
+            <option value="wednesday">Среда (Учитель / Логика)</option>
+            <option value="thursday">Четверг (Креатив / Игры)</option>
+        </select>
     </div>
     
     <div class="chat-messages" id="chatMessages">
         <div class="msg-row ai">
-            <div class="avatar">AI</div>
-            <div class="bubble" id="welcomeText">Привет! Я версия «Среда». Готова разбирать задачи, считать любые примеры и общаться!</div>
+            <div class="avatar">✦</div>
+            <div class="bubble" id="welcomeText">Привет! Я Среда. Интерфейс полностью обновлен: слева доступны быстрые темы для обучения кодингу, математике и физике. Задавай любой вопрос!</div>
         </div>
     </div>
     
-    <div class="input-wrapper">
-        <div class="input-box">
-            <input type="text" id="userInput" placeholder="Напиши сообщение, пример или начни ролку..." onkeydown="if(event.key==='Enter')sendMessage()">
+    <div class="input-container">
+        <div class="input-box-wrapper">
+            <span style="color: #9aa0a6; cursor: pointer;" title="Файлы">📎</span>
+            <input type="text" id="userInput" placeholder="Спроси о коде, введи пример (например, 2+2) или начни ролку..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <span style="color: #9aa0a6; cursor: pointer;" title="Голос">🎙️</span>
+            <button class="send-btn" onclick="sendMessage()">↑</button>
         </div>
-        <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
 </div>
 
@@ -67,21 +111,26 @@
         const welcome = document.getElementById('welcomeText');
         
         if (mode === 'wednesday') {
-            title.innerText = "Версия: Среда";
-            welcome.innerText = "Привет! Я версия «Среда». Нацелена на точную аналитику, код и логику.";
+            title.innerText = "Версия: Среда (Умный наставник)";
+            welcome.innerText = "Привет! Я Среда. Готова обучать программированию, точным наукам и помогать с проектами.";
         } else {
-            title.innerText = "Версия: Четверг";
-            welcome.innerText = "Йоу! Я версия «Четверг». Обсуждаем игры, фандомы, ролки и генерируем идеи!";
+            title.innerText = "Версия: Четверг (Креативный напарник)";
+            welcome.innerText = "Йоу! Я Четверг. Обсуждаем игры, фандомы, ролки и пилим крутой софт!";
         }
     }
 
-    function clearHistory() {
+    function startNewChat() {
         chatHistory = [];
         document.getElementById('chatMessages').innerHTML = `
             <div class="msg-row ai">
-                <div class="avatar">AI</div>
-                <div class="bubble">История чата очищена. Начнем с чистого листа!</div>
+                <div class="avatar">✦</div>
+                <div class="bubble">Новый чат создан. Чем займемся? Могу обучить коду или решить пример!</div>
             </div>`;
+    }
+
+    function quickPrompt(text) {
+        document.getElementById('userInput').value = text;
+        sendMessage();
     }
 
     async function sendMessage() {
@@ -97,13 +146,19 @@
                 <div class="bubble">${escapeHtml(text)}</div>
             </div>`;
         chatHistory.push({ role: "user", content: text });
+        
+        if (chatHistory.length === 1) {
+            document.getElementById('historyList').innerHTML += `
+                <div class="history-item">${escapeHtml(text)}</div>`;
+        }
+
         input.value = '';
         messages.scrollTop = messages.scrollHeight;
 
         const loadId = 'load-' + Date.now();
         messages.innerHTML += `
             <div class="msg-row ai" id="${loadId}">
-                <div class="avatar">AI</div>
+                <div class="avatar">✦</div>
                 <div class="bubble">Думаю над ответом...</div>
             </div>`;
         messages.scrollTop = messages.scrollHeight;
@@ -117,15 +172,15 @@
             const loadEl = document.getElementById(loadId);
             loadEl.outerHTML = `
                 <div class="msg-row ai">
-                    <div class="avatar">AI</div>
+                    <div class="avatar">✦</div>
                     <div class="bubble">${escapeHtml(data.response).replace(/\n/g, '<br>')}</div>
                 </div>`;
         } catch (err) {
             const loadEl = document.getElementById(loadId);
             loadEl.outerHTML = `
                 <div class="msg-row ai">
-                    <div class="avatar">AI</div>
-                    <div class="bubble">Ошибка соединения с сервером. Попробуй еще раз!</div>
+                    <div class="avatar">✦</div>
+                    <div class="bubble">Ошибка соединения с сервером Cloudflare. Проверь сеть!</div>
                 </div>`;
         }
         messages.scrollTop = messages.scrollHeight;
