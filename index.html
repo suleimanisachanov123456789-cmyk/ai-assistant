@@ -6,9 +6,12 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #131314; color: #e3e3e3; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .app-container { width: 850px; height: 700px; background: #1e1f20; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 8px 24px rgba(0,0,0,0.4); overflow: hidden; }
+        .app-container { width: 900px; height: 750px; background: #1e1f20; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 8px 24px rgba(0,0,0,0.5); overflow: hidden; }
         .app-header { padding: 18px 24px; background: #1e1f20; border-bottom: 1px solid #2d2e30; font-size: 16px; font-weight: 600; color: #f1f3f4; display: flex; justify-content: space-between; align-items: center; }
+        .header-controls { display: flex; gap: 12px; align-items: center; }
         .mode-select { background: #2b2c2f; color: #fff; border: 1px solid #444; padding: 6px 12px; border-radius: 6px; font-size: 14px; outline: none; cursor: pointer; }
+        .clear-btn { background: #3c4043; color: #e3e3e3; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+        .clear-btn:hover { background: #5f6368; }
         .chat-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; }
         .msg-row { display: flex; gap: 14px; max-width: 85%; }
         .msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
@@ -30,30 +33,34 @@
 <div class="app-container">
     <div class="app-header">
         <span id="headerTitle">Версия: Среда</span>
-        <select class="mode-select" id="modeSelect" onchange="changeMode()">
-            <option value="wednesday">Среда (Умный)</option>
-            <option value="thursday">Четверг (Креативный)</option>
-        </select>
+        <div class="header-controls">
+            <button class="clear-btn" onclick="clearHistory()" title="Очистить историю чата">Очистить чат</button>
+            <select class="mode-select" id="modeSelect" onchange="changeMode()">
+                <option value="wednesday">Среда (Умный)</option>
+                <option value="thursday">Четверг (Креативный)</option>
+            </select>
+        </div>
     </div>
     
     <div class="chat-messages" id="chatMessages">
         <div class="msg-row ai">
             <div class="avatar">AI</div>
-            <div class="bubble" id="welcomeText">Привет! Я версия «Среда». Сервер Cloudflare подключен.</div>
+            <div class="bubble" id="welcomeText">Привет! Я версия «Среда». База фандомов, ролевых игр и история чата активированы.</div>
         </div>
     </div>
     
     <div class="input-wrapper">
         <div class="input-box">
-            <input type="text" id="userInput" placeholder="Введите сообщение..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <input type="text" id="userInput" placeholder="Напиши сообщение, начни ролку или задай вопрос..." onkeydown="if(event.key==='Enter')sendMessage()">
         </div>
         <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
 </div>
 
 <script>
-    // Твоя персональная ссылка на сервер Cloudflare
     const WORKER_URL = "https://raspy-rain-b35e.suleimanisachanov123456789.workers.dev";
+    
+    let chatHistory = [];
 
     function changeMode() {
         const mode = document.getElementById('modeSelect').value;
@@ -62,11 +69,20 @@
         
         if (mode === 'wednesday') {
             title.innerText = "Версия: Среда";
-            welcome.innerText = "Привет! Я версия «Среда». Нацелена на точные ответы и логику.";
+            welcome.innerText = "Привет! Я версия «Среда». Нацелена на точные науки, логику и анализ.";
         } else {
             title.innerText = "Версия: Четверг";
-            welcome.innerText = "Йоу! Я версия «Четверг». Готов генерировать идеи и обсуждать игры!";
+            welcome.innerText = "Йоу! Я версия «Четверг». Обсуждаем игры, фандомы, ролки и генерируем идеи!";
         }
+    }
+
+    function clearHistory() {
+        chatHistory = [];
+        document.getElementById('chatMessages').innerHTML = `
+            <div class="msg-row ai">
+                <div class="avatar">AI</div>
+                <div class="bubble">История чата очищена. Начнем с чистого листа!</div>
+            </div>`;
     }
 
     async function sendMessage() {
@@ -81,6 +97,7 @@
                 <div class="avatar">Я</div>
                 <div class="bubble">${escapeHtml(text)}</div>
             </div>`;
+        chatHistory.push({ role: "user", content: text });
         input.value = '';
         messages.scrollTop = messages.scrollHeight;
 
@@ -88,14 +105,16 @@
         messages.innerHTML += `
             <div class="msg-row ai" id="${loadId}">
                 <div class="avatar">AI</div>
-                <div class="bubble">Думаю...</div>
+                <div class="bubble">Думаю над ответом...</div>
             </div>`;
         messages.scrollTop = messages.scrollHeight;
 
         try {
-            const response = await fetch(`${WORKER_URL}/?query=${encodeURIComponent(text)}&mode=${mode}`);
+            const response = await fetch(`${WORKER_URL}/?query=${encodeURIComponent(text)}&mode=${mode}&history=${encodeURIComponent(JSON.stringify(chatHistory))}`);
             const data = await response.json();
             
+            chatHistory.push({ role: "assistant", content: data.response });
+
             const loadEl = document.getElementById(loadId);
             loadEl.outerHTML = `
                 <div class="msg-row ai">
@@ -107,7 +126,7 @@
             loadEl.outerHTML = `
                 <div class="msg-row ai">
                     <div class="avatar">AI</div>
-                    <div class="bubble">Ошибка соединения с сервером!</div>
+                    <div class="bubble">Ошибка соединения с сервером. Попробуй еще раз!</div>
                 </div>`;
         }
         messages.scrollTop = messages.scrollHeight;
