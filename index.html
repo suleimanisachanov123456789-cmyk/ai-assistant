@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Среда и Четверг — AI Assistant</title>
+<!-- ФАЙЛ 2 — ИНТЕРФЕЙС. Сервер лежит отдельно в worker.js -->
 <style>
   :root {
     --bg: #000000;
@@ -93,6 +94,13 @@
     font-weight: 600; font-size: 15px; color: var(--accent);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
+  .status {
+    font-size: 12px; padding: 3px 10px; border-radius: 12px; border: 1px solid var(--border-2);
+    white-space: nowrap; flex-shrink: 0; cursor: default;
+  }
+  .status.check { color: var(--muted); }
+  .status.ok { color: #6fdc8c; border-color: #1f4a2b; }
+  .status.off { color: var(--accent); border-color: var(--accent); }
   .header-controls { display: flex; gap: 10px; align-items: center; }
   .mode-select, .clear-btn {
     background: var(--panel); color: var(--text); border: 1px solid var(--border-2);
@@ -124,6 +132,7 @@
   .ai .bubble { background: var(--panel); border: 1px solid var(--border); border-top-left-radius: 4px; }
   .bubble strong { color: var(--accent); }
   .bubble code.inline { background: #2a1c10; color: var(--accent-hover); padding: 1px 6px; border-radius: 5px; font-size: 13.5px; }
+  .offline-note { font-size: 11px; color: var(--muted); margin-top: 8px; white-space: normal; }
   .code-block { position: relative; margin: 8px 0; white-space: normal; }
   .code-block pre {
     background: #050505; border: 1px solid var(--border-2); border-radius: 10px;
@@ -135,7 +144,6 @@
     border: none; border-radius: 6px; font-size: 11px; padding: 4px 8px; cursor: pointer;
   }
   .copy-btn:hover { background: var(--accent); color: var(--accent-text); }
-  .error .bubble { border-color: #6e2f2f; color: #f6b3ad; }
 
   .typing { display: inline-flex; gap: 5px; padding: 6px 2px; }
   .typing span {
@@ -177,6 +185,21 @@
   .send-btn:disabled { opacity: .4; cursor: not-allowed; }
   .hint { text-align: center; font-size: 11px; color: #6b5f55; padding-top: 6px; }
 
+  /* ---------- Экран бана ---------- */
+  .ban-screen {
+    position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.96);
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .ban-screen[hidden] { display: none; }
+  .ban-card {
+    max-width: 440px; text-align: center; background: var(--panel);
+    border: 1px solid var(--accent); border-radius: 20px; padding: 32px 28px;
+    box-shadow: 0 0 40px var(--glow);
+  }
+  .ban-icon { font-size: 48px; margin-bottom: 12px; }
+  .ban-card h2 { color: var(--accent); font-size: 22px; margin-bottom: 12px; }
+  .ban-card p { color: #d6c9bd; font-size: 15px; line-height: 1.6; }
+
   /* ---------- Мобильная версия ---------- */
   @media (max-width: 760px) {
     .sidebar {
@@ -189,12 +212,22 @@
     .bubble { max-width: 88%; }
     .avatar { width: 30px; height: 30px; }
     .clear-btn .label { display: none; }
+    #headerTitle { display: none; }
   }
 </style>
 </head>
 <body data-mode="wednesday">
 
 <div class="overlay" id="overlay"></div>
+
+<!-- Экран бана -->
+<div class="ban-screen" id="banScreen" hidden>
+  <div class="ban-card">
+    <div class="ban-icon">🚫</div>
+    <h2>Доступ заблокирован</h2>
+    <p id="banText"></p>
+  </div>
+</div>
 
 <!-- Боковая панель -->
 <aside class="sidebar" id="sidebar">
@@ -204,6 +237,7 @@
   <button class="feature-item" data-prompt="Реши математический пример: 145 * 38 - 120"><span>📐</span> Математика и расчёты</button>
   <button class="feature-item" data-prompt="Объясни основы программирования и переменные"><span>💻</span> Уроки программирования</button>
   <button class="feature-item" data-prompt="Как работают тепловые трубки в процессорах?"><span>⚡</span> Физика и наука</button>
+  <button class="feature-item" data-prompt="Расскажи про вселенную Marvel и посоветуй хорошие мультфильмы"><span>🎬</span> Кино, Marvel и мультфильмы</button>
   <button class="feature-item" data-prompt="Давай начнём ролевую игру"><span>🎮</span> Ролевые игры и фандомы</button>
 
   <div class="section-title">📜 История чатов</div>
@@ -216,6 +250,7 @@
     <div class="header-left">
       <button class="burger" id="burger" aria-label="Меню">☰</button>
       <span id="headerTitle"></span>
+      <span class="status check" id="status" title="Состояние сервера">● проверка…</span>
     </div>
     <div class="header-controls">
       <button class="clear-btn" id="clearBtn" title="Очистить текущий чат">🗑️ <span class="label">Очистить</span></button>
@@ -246,31 +281,311 @@
 (function () {
   "use strict";
 
-  const WORKER_URL = "https://raspy-rain-b35e.suleimanisachanov123456789.workers.dev";
+  // =========================================================================
+  // НАСТРОЙКИ
+  // Адрес сервера (файл 1 — worker.js). Можно добавить запасные адреса.
+  // Если не отвечает ни один — включается автономный режим в браузере.
+  // =========================================================================
+  const WORKER_URLS = [
+    "https://raspy-rain-b35e.suleimanisachanov123456789.workers.dev"
+    // , "https://второй-воркер.workers.dev"
+  ];
   const STORAGE_KEY = "sreda-chetverg-v2";
-  const HISTORY_LIMIT = 10;      // сколько последних реплик отправлять на сервер
-  const REQUEST_TIMEOUT = 30000; // мс
+  const BAN_KEY = "sc-ban";
+  const UID_KEY = "sc-uid";
+  const STRIKE_KEY = "sc-strikes";
+  const HISTORY_LIMIT = 10;
+  const REQUEST_TIMEOUT = 15000;
+  const PING_TIMEOUT = 6000;
+  const PING_EVERY = 60000;
+  const STRIKE_LIMIT = 3;
 
   const MODES = {
     wednesday: {
       title: "Версия: Среда (Умный наставник)",
-      welcome: "👋 Привет! Я Среда. Готова обучать программированию, точным наукам и помогать с проектами."
+      welcome: "👋 Привет! Я Среда. Готова обучать программированию, точным наукам, обсуждать кино и мультфильмы и помогать с проектами."
     },
     thursday: {
       title: "Версия: Четверг (Креативный напарник)",
-      welcome: "🔥 Йоу! Я Четверг. Обсуждаем игры, фандомы, ролки и пилим крутой софт!"
+      welcome: "🔥 Йоу! Я Четверг. Обсуждаем игры, Marvel, мультики, ролки и пилим крутой софт!"
     }
   };
 
+  // =========================================================================
+  // ЗАЩИТА ДЕТЕЙ (локальная проверка для автономного режима)
+  // На сервере (worker.js) работает такая же проверка.
+  // =========================================================================
+  const SAFE = (function () {
+    const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const stemRe = (l) => new RegExp("(^|[^a-zа-я0-9])(?:" + l.map(esc).join("|") + ")", "i");
+    const exactRe = (l) => new RegExp("(^|[^a-zа-я0-9])(?:" + l.map(esc).join("|") + ")($|[^a-zа-я0-9])", "i");
+    const R = {
+      sex: stemRe(["секс", "порн", "интим", "эрот", "голый", "голая", "голые", "голой", "голую", "голым",
+        "обнажен", "раздет", "изнасил", "трахат", "трахн", "минет", "сиськ", "оргазм", "мастурб",
+        "sex", "porn", "nude", "naked", "erotic", "rape", "hentai", "nsfw", "boob", "orgasm", "masturb"]),
+      minorStrong: stemRe(["ребен", "дети", "детей", "детям", "детьми", "детск", "детк", "дитя", "малолет",
+        "несовершеннолет", "школьн", "подрост", "лолит", "первоклассн", "младшеклассн", "дошкольн", "тинейдж",
+        "child", "kids", "minor", "underage", "teen", "schoolgirl", "schoolboy", "toddler", "preteen"]),
+      minorExact: exactRe(["лоли", "шота", "kid", "loli", "shota"]),
+      age: /(^|[^0-9])(?:[1-9]|1[0-7])\s*-?\s*(?:лет|год|года|летн|yo|y\.o|years?)/i,
+      minorSoft: stemRe(["мальчик", "мальчонк", "девочк", "малыш", "юная", "юный", "юнош", "дочк", "дочер",
+        "сынишк", "ученик", "учениц"]),
+      gore: stemRe(["расчлен", "пытк", "пытат", "изуродов", "выпотрош", "кровав", "истязан", "зарез", "задуш",
+        "обезглав", "убит", "убий", "убью", "замуч", "избив", "избит", "жесток", "мучен", "расстрел"])
+    };
+    const L2C = { a: "а", c: "с", e: "е", o: "о", p: "р", x: "х", y: "у", k: "к", m: "м", t: "т", h: "н", b: "в" };
+    function variants(text) {
+      const base = String(text).toLowerCase().replace(/ё/g, "е").replace(/[\u200b-\u200f\u00ad\u2060]/g, "");
+      const clean = base.replace(/[*_.\-|~`'"]+/g, "");
+      const cyr = clean.replace(/[acepxykmthb]/g, (ch) => L2C[ch]);
+      return [base, clean, cyr];
+    }
+    function classify(text) {
+      const vs = variants(text);
+      const test = (re) => vs.some((t) => re.test(t));
+      const sex = test(R.sex);
+      const strong = test(R.minorStrong) || test(R.minorExact) || test(R.age);
+      const soft = test(R.minorSoft);
+      const gore = test(R.gore);
+      if (sex && strong) return "MINOR_SEXUAL";
+      if (sex && soft) return "MINOR_SEXUAL_SOFT";
+      if (gore && strong) return "GRAPHIC_MINOR";
+      if (sex) return "SEXUAL";
+      return null;
+    }
+    return { classify };
+  })();
+
+  const SAFE_MSG = {
+    MINOR_SEXUAL: "🚫 Доступ заблокирован. Сексуальные и откровенные сцены с детьми и несовершеннолетними недопустимы, и в таких играх я участвовать не буду.",
+    SEXUAL: "Пожалуйста, не надо в такие игры играть. Сексуальные и откровенные сцены я не пишу ни в каком виде. Давай выберем другой сюжет: приключения, космос, детектив или любимая вселенная.",
+    GRAPHIC_MINOR: "Пожалуйста, не надо в такие игры играть. Жестокое насилие над детьми и несовершеннолетними я описывать не буду. Предлагаю другой поворот сюжета."
+  };
+  SAFE_MSG.MINOR_SEXUAL_SOFT = SAFE_MSG.MINOR_SEXUAL;
+
+  // ---------- Локальный бан и предупреждения ----------
+  function getUid() {
+    let u = null;
+    try { u = localStorage.getItem(UID_KEY); } catch (e) {}
+    if (!u) {
+      u = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+        : "u" + Date.now() + Math.random().toString(36).slice(2, 10);
+      try { localStorage.setItem(UID_KEY, u); } catch (e) {}
+    }
+    return u;
+  }
+  const UID = getUid();
+
+  function getBan() {
+    try {
+      const b = JSON.parse(localStorage.getItem(BAN_KEY) || "null");
+      if (b && (!b.until || b.until > Date.now())) return b;
+      if (b) localStorage.removeItem(BAN_KEY);
+    } catch (e) {}
+    return null;
+  }
+  function showBan() {
+    const b = getBan();
+    if (!b) return false;
+    const until = b.until
+      ? "Блокировка действует до " + new Date(b.until).toLocaleString("ru-RU") + "."
+      : "Блокировка действует бессрочно.";
+    document.getElementById("banText").textContent =
+      "Причина: попытка создать недопустимый контент с участием несовершеннолетних или повторные нарушения правил. " + until;
+    document.getElementById("banScreen").hidden = false;
+    return true;
+  }
+  function setBan(until) {
+    try { localStorage.setItem(BAN_KEY, JSON.stringify({ until: until || null, at: Date.now() })); } catch (e) {}
+    showBan();
+  }
+  function addLocalStrike() {
+    let s = { n: 0, t: Date.now() };
+    try { s = JSON.parse(localStorage.getItem(STRIKE_KEY) || "null") || s; } catch (e) {}
+    if (Date.now() - s.t > 86400000) s = { n: 0, t: Date.now() };
+    s.n += 1;
+    try { localStorage.setItem(STRIKE_KEY, JSON.stringify(s)); } catch (e) {}
+    return s.n;
+  }
+  // Обработка нарушения без сервера
+  function localViolation(type, mode) {
+    const tag = mode === "thursday" ? "[Четверг]: " : "[Среда]: ";
+    if (type === "MINOR_SEXUAL" || type === "MINOR_SEXUAL_SOFT") {
+      setBan(type === "MINOR_SEXUAL" ? null : Date.now() + 86400000);
+      return { response: tag + SAFE_MSG[type], violation: type, banned: true };
+    }
+    const n = addLocalStrike();
+    if (n >= STRIKE_LIMIT) {
+      setBan(Date.now() + 86400000);
+      return { response: tag + SAFE_MSG[type] + "\n\n🚫 Это уже " + n + "-е нарушение, доступ заблокирован на 24 часа.", violation: type, banned: true };
+    }
+    return { response: tag + SAFE_MSG[type] + "\n\n⚠️ Предупреждение " + n + " из " + STRIKE_LIMIT + ".", violation: type };
+  }
+
+  // =========================================================================
+  // АВТОНОМНЫЙ «МОЗГ» (работает без сервера)
+  // =========================================================================
+  function normalizeMath(q) {
+    return q
+      .replace(/реши (математический )?пример[:\s]*/g, "")
+      .replace(/сколько будет|чему равно|посчитай|вычисли|реши/g, "")
+      .replace(/в степени/g, "^")
+      .replace(/умножить на|умножить|умножь на/g, "*")
+      .replace(/разделить на|разделить|подели на/g, "/")
+      .replace(/плюс/g, "+")
+      .replace(/минус/g, "-")
+      .replace(/[×хx](?=\s*\d)/g, (m, off, s) => (/\d\s*$/.test(s.slice(0, off)) ? "*" : m))
+      .replace(/÷/g, "/")
+      .replace(/(\d),(\d)/g, "$1.$2")
+      .replace(/[?=]/g, "")
+      .trim();
+  }
+
+  function evaluate(expr) {
+    const tokens = expr.match(/\d+(?:\.\d+)?|[-+*/^%()]/g);
+    if (!tokens || tokens.join("") !== expr.replace(/\s+/g, "")) return null;
+    let pos = 0;
+    const peek = () => tokens[pos];
+    const next = () => tokens[pos++];
+    function parseExpr() {
+      let v = parseTerm();
+      while (peek() === "+" || peek() === "-") {
+        const op = next(); const r = parseTerm();
+        v = op === "+" ? v + r : v - r;
+      }
+      return v;
+    }
+    function parseTerm() {
+      let v = parsePow();
+      while (peek() === "*" || peek() === "/" || peek() === "%") {
+        const op = next(); const r = parsePow();
+        if (op === "*") v *= r;
+        else if (r === 0) throw new Error("DIV0");
+        else v = op === "/" ? v / r : v % r;
+      }
+      return v;
+    }
+    function parsePow() {
+      const base = parseUnary();
+      if (peek() === "^") { next(); return Math.pow(base, parsePow()); }
+      return base;
+    }
+    function parseUnary() {
+      if (peek() === "-") { next(); return -parseUnary(); }
+      if (peek() === "+") { next(); return parseUnary(); }
+      return parseAtom();
+    }
+    function parseAtom() {
+      const t = next();
+      if (t === "(") {
+        const v = parseExpr();
+        if (next() !== ")") throw new Error("PAREN");
+        return v;
+      }
+      if (t === undefined || !/^\d/.test(t)) throw new Error("SYNTAX");
+      return parseFloat(t);
+    }
+    const result = parseExpr();
+    if (pos !== tokens.length) throw new Error("SYNTAX");
+    return result;
+  }
+
+  function tryMath(q) {
+    const expr = normalizeMath(q);
+    if (!/^[\d\s+\-*/^%().]+$/.test(expr)) return null;
+    if (!/\d/.test(expr) || !/[+\-*/^%]/.test(expr.replace(/^\s*-/, ""))) return null;
+    try {
+      const value = evaluate(expr);
+      if (value === null || !isFinite(value)) return null;
+      return { expr, value: Math.round(value * 1e10) / 1e10 };
+    } catch (e) {
+      return { expr, error: e.message === "DIV0" ? "Деление на ноль невозможно." : "Не смог разобрать выражение." };
+    }
+  }
+
+  const RULES = [
+    { keys: ["переменн"], reply: {
+      wednesday: "[Среда - Урок по программированию]:\nПеременная — это именованная область в памяти компьютера для хранения данных.\n• В JavaScript: let score = 100; или const name = 'Сулейман';\n• В Python: score = 100\nПеременные позволяют программе запоминать информацию и менять её по ходу работы.",
+      thursday: "[Четверг]: Представь переменную как коробку с наклейкой. Кидаешь туда число или текст, а потом в любой момент достаёшь или меняешь! 📦" } },
+    { keys: ["функц"], reply: {
+      wednesday: "[Среда - Урок по программированию]:\nФункция — это самодостаточный блок кода для конкретной задачи. Она принимает аргументы и возвращает результат через return.\nПример: function sum(a, b) { return a + b; }",
+      thursday: "[Четверг]: Функция — твой личный мини-скрипт! Написал логику один раз, а потом зовёшь по имени, когда нужно. ⚙️" } },
+    { keys: ["цикл"], reply: {
+      wednesday: "[Среда - Урок по программированию]:\nЦикл повторяет блок кода, пока выполняется условие.\n• for (let i = 0; i < 5; i++) { console.log(i); }\n• while (условие) { ... }\nСледи за условием выхода, иначе цикл станет бесконечным.",
+      thursday: "[Четверг]: Цикл — это когда лень писать одно и то же 100 раз, и ты говоришь компьютеру: «повторяй сам!» 🔁" } },
+    { keys: ["программир", "код", "javascript", "python", "html", "css"], reply: {
+      wednesday: "[Среда - Академия ИТ]: Могу разобрать JavaScript, HTML/CSS, Python или Roblox Luau. Назови тему: переменные, функции, циклы, массивы или свой проект.",
+      thursday: "[Четверг]: Кодинг — это мощь! 💻 Могу объяснить переменные, функции, циклы или помочь с проектом. С чего начнём?" } },
+    { keys: ["тепловы", "трубк", "охлажден"], reply: {
+      wednesday: "[Среда - Физика]: Тепловая трубка — высокоэффективное устройство передачи тепла. Внутри неё жидкость под низким давлением. В зоне нагрева (процессор) жидкость закипает и превращается в пар. Пар идёт к радиатору, конденсируется, отдавая тепло наружу, и по капиллярной структуре стекает обратно.",
+      thursday: "[Четверг]: Тепловая трубка — крутой круговорот! Забирает жар от процессора, испаряет жидкость, гонит пар к радиатору, а потом возвращает обратно! ♻️" } },
+    { keys: ["стародум", "недоросл", "фонвизин"], reply: {
+      wednesday: "[Среда - Литература]: Стародум в комедии Фонвизина «Недоросль» — главный рупор идей автора. Он выступает за просвещённое общество, образование и мораль: «Имей сердце, имей душу, и будешь человек во всякое время».",
+      thursday: "[Четверг]: Стародум — главный мудрец в «Недоросле»! Объясняет, что образование, честь и чистая совесть важнее денег и пустых чинов. 📚" } },
+    { keys: ["marvel", "марвел", "мстител", "железный человек", "человек-паук", "танос"], reply: {
+      wednesday: "[Среда]: Marvel — огромная киновселенная про Мстителей, Железного человека, Тора и других героев. Сейчас сервер недоступен, поэтому подробный разбор будет позже.",
+      thursday: "[Четверг]: Marvel — это бомба! 🦸 Мстители, Железный человек, Танос и перчатка бесконечности. Сервер сейчас спит, подробный разбор позже. Какой фильм любишь?" } },
+    { keys: ["мультик", "мультфильм", "disney", "дисней", "pixar", "пиксар", "симпсон", "смешарик"], reply: {
+      wednesday: "[Среда]: Мультфильмы — большая тема: Disney, Pixar, DreamWorks, «Симпсоны», «Смешарики». Сейчас сервер недоступен, подробный разговор будет позже.",
+      thursday: "[Четверг]: Мультики — это классно! 🎬 Disney, Pixar, Симпсоны, Смешарики. Сервер сейчас спит, но скоро вернусь и обсудим любимые!" } },
+    { keys: ["rick", "морти", "рика", "рику", "риком"], exact: ["рик"], reply: {
+      wednesday: "[Среда]: Мультивселенная Рика C-137 — система квантовых реальностей, порталов и экзистенциального нигилизма.",
+      thursday: "[Четверг]: Wubba lubba dub dub! Рик, порталы, Цитадель и безумные скачки по измерениям — чистый кайф! 🚀🧪" } },
+    { keys: ["brawl", "бравл"], reply: "[Четверг]: Brawl Stars на связи! Качаем бойцов, фармим кубки и тащим катки за Шелли и Кольта! 🔫" },
+    { keys: ["roblox", "роблокс"], reply: "[Четверг]: Roblox Studio и Luau — идеальный инструмент, чтобы делать свои режимы и игры! 🧱" },
+    { keys: ["standoff", "стандофф"], reply: "[Четверг]: Standoff 2: тренируй аим, раскидывай гранаты и забирай победы! 🎯" },
+    { keys: ["ролк", "ролеплэй", "ролеплей", "сюжет"], reply: {
+      wednesday: "[Среда]: Ролевой протокол активирован. Но без сервера я не смогу вести долгую игру. Попробуй чуть позже, когда сервер проснётся.",
+      thursday: "[Четверг]: О да, ролка! 🎮 Для полноценной игры нужен сервер, а он сейчас спит. Загляни чуть позже, и погнали!" } },
+    { keys: ["сулейман"], reply: {
+      wednesday: "[Среда]: Создатель и главный архитектор нашего проекта — Сулейман Исаханов.",
+      thursday: "[Четверг]: Наш главный босс и создатель — Сулейман Исаханов! 😎" } },
+    { keys: ["привет", "здарова", "салют", "здравствуй"], reply: {
+      wednesday: "[Среда]: Приветствую! Помогаю с программированием, математикой, физикой, кино и проектами. С чего начнём?",
+      thursday: "[Четверг]: Йоу, Сулейман! Четверг на связи! Готовы разносить любые задачи на максимум! 🔥" } }
+  ];
+
+  const WB = "(^|[^a-zа-яё0-9])";
+  function startsWord(text, stem) {
+    const esc = stem.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(WB + esc, "i").test(text);
+  }
+  function matchRule(q) {
+    for (const rule of RULES) {
+      if (rule.exact && rule.exact.some((w) => new RegExp(WB + w + "($|[^a-zа-яё0-9])", "i").test(q))) return rule;
+      if (rule.keys.some((k) => startsWord(q, k))) return rule;
+    }
+    return null;
+  }
+
+  function localBrain(query, mode) {
+    const q = query.toLowerCase().trim();
+    const wed = mode === "wednesday";
+    const math = tryMath(q);
+    if (math) {
+      if (math.error) return wed ? "[Среда]: " + math.error : "[Четверг]: Ой, тут не вышло: " + math.error + " 🤔";
+      return wed
+        ? '[Среда]: Произведён расчёт выражения "' + math.expr + '".\n📐 Точный результат: ' + math.value + "."
+        : '[Четверг]: Изи матан! Твой пример "' + math.expr + '" щёлкается на раз-два. Получается ровно ' + math.value + " 🧠🔥";
+    }
+    const rule = matchRule(q);
+    if (rule) return typeof rule.reply === "string" ? rule.reply : rule.reply[mode];
+    return wed
+      ? "[Среда]: Сервер сейчас недоступен, поэтому я работаю автономно: умею считать примеры и знаю базовые темы по программированию, физике, литературе, играм и кино. Для свободного диалога нужен онлайн-режим, попробуй позже."
+      : "[Четверг]: Сервер сейчас спит 😴, я в автономке! Могу посчитать пример или рассказать про код, физику, игры и Marvel. А для свободной болтовни дождёмся, пока сервер проснётся!";
+  }
+
+  // =========================================================================
+  // ИНТЕРФЕЙС
+  // =========================================================================
   const $ = (id) => document.getElementById(id);
   const els = {
     messages: $("chatMessages"), scroll: $("chatScroll"), input: $("userInput"),
     send: $("sendBtn"), mic: $("micBtn"), mode: $("modeSelect"), title: $("headerTitle"),
     list: $("historyList"), clear: $("clearBtn"), newChat: $("newChatBtn"),
-    burger: $("burger"), overlay: $("overlay")
+    burger: $("burger"), overlay: $("overlay"), status: $("status")
   };
 
-  // ---------- Состояние ----------
   let state = { chats: [], currentId: null, mode: "wednesday" };
   let busy = false;
 
@@ -296,7 +611,55 @@
     return chat;
   }
 
-  // ---------- Форматирование текста (безопасное) ----------
+  // ---------- Статус сервера ----------
+  function setStatus(kind) {
+    els.status.className = "status " + kind;
+    els.status.textContent = kind === "ok" ? "● онлайн" : kind === "off" ? "● офлайн" : "● проверка…";
+    els.status.title = kind === "ok" ? "Сервер отвечает"
+      : kind === "off" ? "Сервер недоступен — работает автономный режим" : "Проверяю сервер…";
+  }
+
+  async function fetchWithTimeout(url, options, ms) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), ms);
+    try { return await fetch(url, Object.assign({}, options, { signal: ctrl.signal })); }
+    finally { clearTimeout(timer); }
+  }
+
+  async function checkServer() {
+    for (const url of WORKER_URLS) {
+      try {
+        const res = await fetchWithTimeout(
+          url + "?query=" + encodeURIComponent("привет") + "&mode=wednesday&uid=" + encodeURIComponent(UID), {}, PING_TIMEOUT);
+        if (res.ok) {
+          setStatus("ok");
+          try { const d = await res.json(); if (d && d.banned) setBan(d.until); } catch (e) {}
+          return true;
+        }
+      } catch (e) {}
+    }
+    setStatus("off");
+    return false;
+  }
+
+  // Возвращает объект ответа сервера или null, если ни один сервер не ответил
+  async function askServers(text, history) {
+    for (const url of WORKER_URLS) {
+      try {
+        const res = await fetchWithTimeout(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: text, mode: state.mode, history, uid: UID })
+        }, REQUEST_TIMEOUT);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (data && data.response) return data;
+      } catch (e) { /* пробуем следующий сервер */ }
+    }
+    return null;
+  }
+
+  // ---------- Безопасное форматирование ----------
   function escapeHtml(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
@@ -342,7 +705,13 @@
     bubble.className = "bubble";
     if (role === "user") bubble.textContent = text;
     else renderRich(bubble, text);
-    row.className = "msg-row " + (role === "user" ? "user" : "ai") + (opts.error ? " error" : "");
+    if (opts.offline) {
+      const note = document.createElement("div");
+      note.className = "offline-note";
+      note.textContent = "⚡ Автономный режим: ответ сформирован в браузере";
+      bubble.appendChild(note);
+    }
+    row.className = "msg-row " + (role === "user" ? "user" : "ai");
     row.append(avatar, bubble);
     els.messages.appendChild(row);
     scrollDown();
@@ -367,7 +736,7 @@
       addMessage("ai", MODES[state.mode].welcome);
       return;
     }
-    chat.messages.forEach((m) => addMessage(m.role === "user" ? "user" : "ai", m.content));
+    chat.messages.forEach((m) => addMessage(m.role === "user" ? "user" : "ai", m.content, { offline: m.offline }));
   }
 
   function renderSidebar() {
@@ -431,22 +800,23 @@
     chat.title = "Новый чат";
     save(); renderMessages(); renderSidebar();
   }
-
-  function setBusy(v) {
-    busy = v;
-    els.send.disabled = v;
-  }
+  function setBusy(v) { busy = v; els.send.disabled = v; }
 
   async function sendMessage(forcedText) {
     if (busy) return;
+    if (getBan()) { showBan(); return; }
     const text = (typeof forcedText === "string" ? forcedText : els.input.value).trim();
     if (!text) return;
 
-    let chat = currentChat() || createChat();
-    // история ДО текущего сообщения — иначе оно дублируется на сервере
-    const history = chat.messages.slice(-HISTORY_LIMIT).map((m) => ({ role: m.role, content: m.content }));
+    const chat = currentChat() || createChat();
+    // история ДО текущего сообщения; сообщения с нарушениями в историю не попадают
+    const history = chat.messages
+      .filter((m) => !m.blocked)
+      .slice(-HISTORY_LIMIT)
+      .map((m) => ({ role: m.role, content: m.content }));
 
     chat.messages.push({ role: "user", content: text });
+    const userMsg = chat.messages[chat.messages.length - 1];
     if (chat.messages.length === 1) chat.title = text.length > 32 ? text.slice(0, 32) + "…" : text;
     save();
 
@@ -459,33 +829,33 @@
     setBusy(true);
     const typing = addTyping();
 
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT);
+    // 1) сервер
+    let payload = await askServers(text, history);
+    let offline = false;
 
-    try {
-      const res = await fetch(WORKER_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: text, mode: state.mode, history }),
-        signal: ctrl.signal
-      });
-      const data = await res.json();
-      const answer = (data && data.response) ? String(data.response) : "Пустой ответ от сервера.";
-      typing.remove();
-      chat.messages.push({ role: "assistant", content: answer });
-      save();
-      addMessage("ai", answer);
-    } catch (err) {
-      typing.remove();
-      const msg = err && err.name === "AbortError"
-        ? "⏱️ Сервер слишком долго отвечает. Попробуй ещё раз."
-        : "❌ Не удалось связаться с сервером Cloudflare. Проверь сеть и попробуй снова.";
-      addMessage("ai", msg, { error: true });
-    } finally {
-      clearTimeout(timer);
-      setBusy(false);
-      els.input.focus();
+    if (payload) {
+      setStatus("ok");
+    } else {
+      // 2) сервера нет — автономный режим с локальной защитой
+      offline = true;
+      setStatus("off");
+      const v = SAFE.classify(text);
+      if (v) payload = localViolation(v, state.mode);
+      else payload = { response: localBrain(text, state.mode) };
     }
+
+    typing.remove();
+    const answer = String(payload.response);
+    const blocked = !!payload.violation;
+    if (blocked) userMsg.blocked = true;
+    chat.messages.push({ role: "assistant", content: answer, offline: offline, blocked: blocked });
+    save();
+    addMessage("ai", answer, { offline: offline && !blocked });
+
+    if (payload.banned) setBan(payload.until);
+
+    setBusy(false);
+    els.input.focus();
   }
 
   // ---------- Поле ввода ----------
@@ -502,7 +872,7 @@
   });
   els.send.addEventListener("click", () => sendMessage());
 
-  // ---------- Голосовой ввод (если браузер поддерживает) ----------
+  // ---------- Голосовой ввод ----------
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (SR) {
     els.mic.style.display = "";
@@ -541,9 +911,12 @@
   els.burger.addEventListener("click", openMenu);
   els.overlay.addEventListener("click", closeMenu);
 
+  window.addEventListener("online", checkServer);
+  window.addEventListener("offline", () => setStatus("off"));
+  setInterval(() => { if (!busy && document.visibilityState === "visible") checkServer(); }, PING_EVERY);
+
   // ---------- Старт ----------
   load();
-  // чистим пустые чаты, кроме текущего
   state.chats = state.chats.filter((c) => c.messages.length > 0 || c.id === state.currentId);
   if (!currentChat()) {
     if (state.chats.length) state.currentId = state.chats[0].id;
@@ -552,6 +925,8 @@
   applyMode();
   renderMessages();
   renderSidebar();
+  showBan();
+  checkServer();
 })();
 </script>
 </body>
