@@ -70,7 +70,7 @@
             padding: 12px 14px; border-radius: 12px; margin-bottom: 12px; font-size: 12px; line-height: 1.5;
         }
 
-        /* Сайдбар в стиле Gemini */
+        /* Сайдбар */
         .sidebar {
             width: 290px; background: var(--surface-color); border-right: 1px solid var(--border-color);
             display: flex; flex-direction: column; padding: 18px; gap: 12px; z-index: 10;
@@ -100,7 +100,7 @@
         .history-item { padding: 8px 10px; border-radius: 8px; font-size: 12px; color: var(--text-muted); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .history-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
 
-        /* Основная часть */
+        /* Основная область */
         .main-container { flex: 1; display: flex; flex-direction: column; height: 100vh; background: var(--bg-dark); }
         .app-header { padding: 12px 24px; background: var(--surface-color); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .status-badge { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
@@ -117,7 +117,7 @@
         }
         .mode-select option { background: var(--surface-color); color: #fff; }
 
-        /* Сообщения в стиле Google Gemini */
+        /* Сообщения */
         .chat-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; max-width: 850px; width: 100%; margin: 0 auto; scroll-behavior: smooth; }
         .msg-row { display: flex; gap: 14px; width: 100%; align-items: flex-start; }
         .msg-row.user { justify-content: flex-end; }
@@ -145,7 +145,7 @@
         .speak-msg-btn { align-self: flex-start; background: transparent; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 2px 4px; }
         .speak-msg-btn:hover { color: var(--accent-orange); }
 
-        /* Поле ввода в стиле Gemini */
+        /* Поле ввода */
         .input-container { padding: 12px 24px 22px 24px; display: flex; justify-content: center; }
         .input-box-wrapper {
             width: 100%; max-width: 850px; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 24px; padding: 8px 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
@@ -165,7 +165,7 @@
 <div id="authModal">
     <div class="auth-box">
         <h3>Авторизация</h3>
-        <input type="text" id="loginInput" placeholder="Логин">
+        <input type="text" id="loginInput" placeholder="Логин (например, admin)">
         <input type="password" id="passInput" placeholder="Пароль">
         <button onclick="checkAuth()">Войти</button>
     </div>
@@ -182,7 +182,7 @@
     <div id="adminPanel">
         <b>Панель администратора</b><br>
         Активных устройств: <span id="devicesCountVal">...</span><br>
-        Статус: Сервер активен 🚀
+        Статус: Память контекста активна 🧠
     </div>
 
     <button class="new-chat-btn" onclick="startNewChat()">
@@ -194,4 +194,68 @@
         <div class="feature-card" onclick="quickPrompt('Какая погода сейчас?')">
             <div class="feature-icon">🌦️</div>
             <div class="feature-info">
-                <div class="feature-
+                <div class="feature-title">Погода</div>
+                <div class="feature-desc">Авто-локация</div>
+            </div>
+        </div>
+        <div class="feature-card" onclick="quickPrompt('Напиши код на JS')">
+            <div class="feature-icon">💻</div>
+            <div class="feature-info">
+                <div class="feature-title">Кодинг</div>
+                <div class="feature-desc">Скрипты и алгоритмы</div>
+            </div>
+        </div>
+        <div class="feature-card" onclick="quickPrompt('Реши пример: (150 * 4) / 2 + 75')">
+            <div class="feature-icon">📐</div>
+            <div class="feature-info">
+                <div class="feature-title">Калькулятор</div>
+                <div class="feature-desc">Математика на лету</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-label">История</div>
+    <div class="history-list" id="historyList">
+        <div class="history-item" onclick="quickPrompt('/помощь')">Справка / Помощь</div>
+    </div>
+</div>
+
+<!-- Основная область -->
+<div class="main-container">
+    <div class="app-header">
+        <div class="status-badge">
+            <div class="pulse-dot"></div>
+            <span id="headerTitle">Ядро: Четверг (Orange Gemini Style)</span>
+        </div>
+        <div class="header-controls">
+            <button class="voice-toggle-btn" id="voiceToggleBtn" onclick="toggleAutoVoice()">🔊 Озвучка: ВЫКЛ</button>
+            <button class="clear-btn" onclick="clearHistory()">Очистить память</button>
+            <select class="mode-select" id="modeSelect" onchange="changeMode()">
+                <option value="thursday">Четверг (Оранж)</option>
+                <option value="wednesday">Среда (Синий)</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+        <div class="msg-row ai">
+            <div class="avatar">G</div>
+            <div class="bubble-wrap">
+                <div class="bubble" id="welcomeText">Йоу, Сулейман! Авторизация теперь не чувствительна к регистру (можешь писать хоть с маленькой буквы), а память диалога прокачана на максимум — я отлично помню всё, что мы обсуждали выше! Я Четверг, жду задачу!</div>
+                <button class="speak-msg-btn" onclick="speakText(document.getElementById('welcomeText').innerText)">Озвучить</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="input-container">
+        <div class="input-box-wrapper">
+            <button class="tool-icon" onclick="quickPrompt('Какая погода?')">🌦️</button>
+            <input type="text" id="userInput" placeholder="Введите запрос, пример или /admin..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <button class="tool-icon" id="micBtn" onclick="toggleMic()">🎙️</button>
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const WORKER_URL = "
