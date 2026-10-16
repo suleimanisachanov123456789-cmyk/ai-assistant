@@ -3,685 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Среда и Четверг — Cyber AI v6</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <title>Среда и Четверг — Gemini Orange UI</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
     <style>
         :root {
-            --bg-dark: #090a0f;
-            --glass-bg: rgba(22, 25, 35, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.09);
-            --accent-primary: #00f2fe;
-            --accent-secondary: #4facfe;
-            --accent-glow: rgba(0, 242, 254, 0.25);
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
+            --bg-dark: #131110;
+            --surface-color: #1e1917;
+            --surface-hover: #29221f;
+            --border-color: rgba(255, 107, 0, 0.2);
+            --accent-orange: #ff6b00;
+            --accent-orange-hover: #ff8533;
+            --accent-glow: rgba(255, 107, 0, 0.3);
+            --text-main: #f5f2ef;
+            --text-muted: #b8aba3;
+            --code-bg: #0b0908;
         }
 
-        body.thursday-mode {
-            --accent-primary: #ff0844;
-            --accent-secondary: #ffb199;
-            --accent-glow: rgba(255, 8, 68, 0.25);
+        body.wednesday-mode {
+            --bg-dark: #0b0d13;
+            --surface-color: #131924;
+            --surface-hover: #1c2536;
+            --border-color: rgba(0, 242, 254, 0.2);
+            --accent-orange: #00f2fe;
+            --accent-orange-hover: #4facfe;
+            --accent-glow: rgba(0, 242, 254, 0.3);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --code-bg: #07090f;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.25s, border-color 0.25s, box-shadow 0.25s; }
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Google Sans', sans-serif;
             background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 15% 20%, var(--accent-glow), transparent 35%),
-                radial-gradient(circle at 85% 80%, rgba(120, 40, 200, 0.15), transparent 40%);
             color: var(--text-main);
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Боковая панель */
+        /* Авторизация админа */
+        #authModal {
+            position: fixed; inset: 0; background: rgba(8, 6, 5, 0.92); backdrop-filter: blur(12px);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .auth-box {
+            background: var(--surface-color); border: 1px solid var(--accent-orange); padding: 35px;
+            border-radius: 24px; width: 360px; display: flex; flex-direction: column; gap: 18px;
+            box-shadow: 0 0 35px var(--accent-glow); text-align: center;
+        }
+        .auth-box h3 { color: #fff; font-size: 22px; font-weight: 700; }
+        .auth-box input {
+            background: var(--bg-dark); border: 1px solid var(--border-color); padding: 13px;
+            border-radius: 12px; color: #fff; outline: none; font-size: 15px; text-align: center;
+        }
+        .auth-box input:focus { border-color: var(--accent-orange); box-shadow: 0 0 15px var(--accent-glow); }
+        .auth-box button {
+            background: var(--accent-orange); color: #fff; border: none; padding: 13px; 
+            border-radius: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        /* Админ-панель */
+        #adminPanel {
+            display: none; background: rgba(255, 107, 0, 0.1); border: 1px solid var(--accent-orange);
+            padding: 12px 14px; border-radius: 12px; margin-bottom: 12px; font-size: 12px; line-height: 1.5;
+        }
+
+        /* Сайдбар в стиле Gemini */
         .sidebar {
-            width: 310px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--glass-border);
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            gap: 14px;
-            z-index: 10;
+            width: 290px; background: var(--surface-color); border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; padding: 18px; gap: 12px; z-index: 10;
         }
-
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 17px;
-            font-weight: 700;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--glass-border);
-            color: #fff;
-        }
-
-        .geo-badge {
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--accent-primary);
-            background: rgba(255, 255, 255, 0.05);
-            padding: 4px 8px;
-            border-radius: 8px;
-            border: 1px solid var(--glass-border);
-        }
+        .brand-logo { display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 700; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); color: #fff; }
+        .geo-badge { font-size: 11px; font-weight: 500; color: var(--accent-orange); background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border-color); }
 
         .new-chat-btn {
-            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
-            color: #090a0f;
-            border: none;
-            padding: 12px 16px;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 20px var(--accent-glow);
+            background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 12px 16px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 10px;
         }
-        .new-chat-btn:hover { transform: translateY(-2px); }
+        .new-chat-btn:hover { background: var(--surface-hover); border-color: var(--accent-orange); }
 
-        .section-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 4px;
-        }
-
-        .features-grid { display: flex; flex-direction: column; gap: 8px; }
-
+        .section-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 6px; }
+        .features-grid { display: flex; flex-direction: column; gap: 6px; }
         .feature-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 10px 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 12px; cursor: pointer; display: flex; align-items: center; gap: 10px;
         }
-        .feature-card:hover {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: var(--accent-primary);
-            transform: translateX(4px);
-        }
-
-        .feature-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 17px;
-            flex-shrink: 0;
-        }
-
+        .feature-card:hover { background: var(--surface-hover); border-color: var(--accent-orange); transform: translateX(3px); }
+        .feature-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
         .feature-info { display: flex; flex-direction: column; gap: 2px; }
-        .feature-title { font-size: 13px; font-weight: 600; color: #fff; }
+        .feature-title { font-size: 13px; font-weight: 500; color: #fff; }
         .feature-desc { font-size: 11px; color: var(--text-muted); }
 
-        .history-list {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .history-item {
-            padding: 9px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: var(--text-muted);
-            background: rgba(255, 255, 255, 0.02);
-            cursor: pointer;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .history-item:hover { background: rgba(255, 255, 255, 0.06); color: #fff; }
+        .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        .history-item { padding: 8px 10px; border-radius: 8px; font-size: 12px; color: var(--text-muted); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
 
-        /* Основная область */
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        .app-header {
-            padding: 14px 28px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--glass-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
+        /* Основная часть */
+        .main-container { flex: 1; display: flex; flex-direction: column; height: 100vh; background: var(--bg-dark); }
+        .app-header { padding: 12px 24px; background: var(--surface-color); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .status-badge { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
-        .pulse-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--accent-primary);
-            box-shadow: 0 0 12px var(--accent-primary);
-        }
+        .pulse-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent-orange); box-shadow: 0 0 10px var(--accent-orange); }
 
         .header-controls { display: flex; gap: 10px; align-items: center; }
-
         .voice-toggle-btn, .clear-btn {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-main);
-            border: 1px solid var(--glass-border);
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            background: rgba(255, 255, 255, 0.04); color: var(--text-main); border: 1px solid var(--border-color); padding: 7px 12px; border-radius: 10px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;
         }
-        .voice-toggle-btn.active {
-            border-color: var(--accent-primary);
-            background: var(--accent-glow);
-            color: #fff;
-        }
-        .clear-btn:hover { background: rgba(255, 60, 60, 0.15); color: #ff6b6b; }
-
+        .voice-toggle-btn.active { border-color: var(--accent-orange); background: var(--accent-glow); color: #fff; }
+        .clear-btn:hover { background: rgba(255, 60, 60, 0.12); color: #ff6b6b; }
         .mode-select {
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            border: 1px solid var(--accent-primary);
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            outline: none;
-            cursor: pointer;
+            background: rgba(255, 255, 255, 0.04); color: #fff; border: 1px solid var(--accent-orange); padding: 7px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; outline: none; cursor: pointer;
         }
-        .mode-select option { background: #161923; color: #fff; }
+        .mode-select option { background: var(--surface-color); color: #fff; }
 
-        /* Сообщения */
-        .chat-messages {
-            flex: 1;
-            padding: 26px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 900px;
-            width: 100%;
-            margin: 0 auto;
-            scroll-behavior: smooth;
-        }
-
+        /* Сообщения в стиле Google Gemini */
+        .chat-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; max-width: 850px; width: 100%; margin: 0 auto; scroll-behavior: smooth; }
         .msg-row { display: flex; gap: 14px; width: 100%; align-items: flex-start; }
         .msg-row.user { justify-content: flex-end; }
-
+        
         .avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 15px;
-            flex-shrink: 0;
-            background: #1a1d29;
-            border: 1px solid var(--accent-primary);
-            box-shadow: 0 0 12px var(--accent-glow);
+            width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 12px; flex-shrink: 0; background: var(--surface-hover); border: 1px solid var(--accent-orange);
+            color: var(--accent-orange); box-shadow: 0 0 10px var(--accent-glow);
         }
         .user .avatar {
-            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
-            color: #090a0f;
-            border: none;
-            order: 2;
+            background: var(--accent-orange); color: #fff; border: none; order: 2;
         }
 
-        .bubble-wrap { display: flex; flex-direction: column; gap: 6px; max-width: 78%; }
-        .bubble {
-            padding: 14px 18px;
-            border-radius: 16px;
-            font-size: 15px;
-            line-height: 1.55;
-            word-wrap: break-word;
-            white-space: pre-wrap;
+        .bubble-wrap { display: flex; flex-direction: column; gap: 6px; max-width: 82%; }
+        .bubble { padding: 14px 18px; border-radius: 16px; font-size: 15px; line-height: 1.6; word-wrap: break-word; white-space: pre-wrap; }
+        .user .bubble { background: var(--surface-hover); border: 1px solid var(--border-color); color: #fff; border-top-right-radius: 4px; }
+        .ai .bubble { background: var(--surface-color); border: 1px solid var(--border-color); color: var(--text-main); border-top-left-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        
+        .ai .bubble pre {
+            background: var(--code-bg); padding: 12px; border-radius: 10px; overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace; font-size: 13px; margin: 8px 0; border: 1px solid var(--border-color);
         }
-        .user .bubble {
-            background: rgba(255, 255, 255, 0.09);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-            border-top-right-radius: 4px;
-        }
-        .ai .bubble {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: var(--text-main);
-            border-top-left-radius: 4px;
-        }
+        .ai .bubble code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.3); padding: 2px 5px; border-radius: 4px; }
 
-        .speak-msg-btn {
-            align-self: flex-start;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 6px;
-            border-radius: 6px;
-        }
-        .speak-msg-btn:hover { color: var(--accent-primary); background: rgba(255,255,255,0.05); }
+        .speak-msg-btn { align-self: flex-start; background: transparent; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 2px 4px; }
+        .speak-msg-btn:hover { color: var(--accent-orange); }
 
-        /* Нижняя панель */
-        .input-container { padding: 14px 28px 24px 28px; display: flex; justify-content: center; }
+        /* Поле ввода в стиле Gemini */
+        .input-container { padding: 12px 24px 22px 24px; display: flex; justify-content: center; }
         .input-box-wrapper {
-            width: 100%;
-            max-width: 900px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            width: 100%; max-width: 850px; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 24px; padding: 8px 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
         }
-        .input-box-wrapper:focus-within { border-color: var(--accent-primary); box-shadow: 0 0 20px var(--accent-glow); }
-
-        .tool-icon {
-            font-size: 19px;
-            cursor: pointer;
-            opacity: 0.8;
-            padding: 6px 8px;
-            border-radius: 10px;
-            border: 1px solid transparent;
-            background: transparent;
-            color: #fff;
-        }
-        .tool-icon:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
-        .tool-icon.recording {
-            background: rgba(255, 8, 68, 0.25);
-            border-color: #ff0844;
-            animation: recPulse 1s infinite;
-        }
-        @keyframes recPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.12); }
-            100% { transform: scale(1); }
-        }
-
-        .input-box-wrapper input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 15px;
-            outline: none;
-        }
-
-        .send-btn {
-            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
-            color: #090a0f;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 800;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .input-box-wrapper:focus-within { border-color: var(--accent-orange); box-shadow: 0 0 20px var(--accent-glow); }
+        .tool-icon { font-size: 18px; cursor: pointer; opacity: 0.8; padding: 6px; border-radius: 50%; background: transparent; color: #fff; border: none; }
+        .tool-icon:hover { opacity: 1; background: var(--surface-hover); }
+        .tool-icon.recording { background: rgba(255, 8, 68, 0.2); animation: recPulse 1s infinite; }
+        .input-box-wrapper input { flex: 1; background: transparent; border: none; color: #fff; font-size: 15px; outline: none; padding-left: 6px; }
+        .send-btn { background: var(--accent-orange); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 16px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px var(--accent-glow); }
+        .send-btn:hover { transform: scale(1.06); background: var(--accent-orange-hover); }
     </style>
 </head>
-<body id="appBody">
+<body id="appBody" class="thursday-mode">
 
-<!-- Боковая панель -->
+<!-- Авторизация админа -->
+<div id="authModal">
+    <div class="auth-box">
+        <h3>Авторизация</h3>
+        <input type="text" id="loginInput" placeholder="Логин">
+        <input type="password" id="passInput" placeholder="Пароль">
+        <button onclick="checkAuth()">Войти</button>
+    </div>
+</div>
+
+<!-- Сайдбар -->
 <div class="sidebar">
     <div class="brand-logo">
-        <span>⚡ СРЕДА & ЧЕТВЕРГ</span>
-        <span class="geo-badge" id="geoBadge" title="Твоя локация">🌍 Онлайн</span>
+        <span>GEMINI ORANGE UI</span>
+        <span class="geo-badge" id="geoBadge">Online</span>
+    </div>
+
+    <!-- Админ-панель -->
+    <div id="adminPanel">
+        <b>Панель администратора</b><br>
+        Активных устройств: <span id="devicesCountVal">...</span><br>
+        Статус: Сервер активен 🚀
     </div>
 
     <button class="new-chat-btn" onclick="startNewChat()">
-        <span>＋</span> Новый диалог
+        <span>＋</span> Новый чат
     </button>
 
-    <div class="section-label">🚀 Быстрые команды</div>
+    <div class="section-label">Инструменты</div>
     <div class="features-grid">
         <div class="feature-card" onclick="quickPrompt('Какая погода сейчас?')">
             <div class="feature-icon">🌦️</div>
             <div class="feature-info">
-                <div class="feature-title">Погода в моём городе</div>
-                <div class="feature-desc">Автоопределение локации</div>
-            </div>
-        </div>
-
-        <div class="feature-card" onclick="quickPrompt('Реши пример: 145 * 38 - 120')">
-            <div class="feature-icon">📐</div>
-            <div class="feature-info">
-                <div class="feature-title">Супер-калькулятор</div>
-                <div class="feature-desc">Примеры, корни, проценты</div>
-            </div>
-        </div>
-
-        <div class="feature-card" onclick="quickPrompt('Объясни основы программирования и переменные')">
-            <div class="feature-icon">💻</div>
-            <div class="feature-info">
-                <div class="feature-title">Академия Кодинга</div>
-                <div class="feature-desc">JS, Python, HTML и Luau</div>
-            </div>
-        </div>
-
-        <div class="feature-card" onclick="quickPrompt('Как работают тепловые трубки в процессорах?')">
-            <div class="feature-icon">🔬</div>
-            <div class="feature-info">
-                <div class="feature-title">Физика и Литература</div>
-                <div class="feature-desc">Тепловые трубки, Недоросль</div>
-            </div>
-        </div>
-
-        <div class="feature-card" onclick="quickPrompt('Давай начнем ролевую игру по вселенной Рика и Морти')">
-            <div class="feature-icon">🎮</div>
-            <div class="feature-info">
-                <div class="feature-title">Гейминг и Ролки</div>
-                <div class="feature-desc">Рик и Морти, Brawl, Roblox</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-label">📜 История запросов</div>
-    <div class="history-list" id="historyList">
-        <div class="history-item" onclick="quickPrompt('/помощь')">✨ Что ты умеешь? (/помощь)</div>
-    </div>
-</div>
-
-<!-- Основное окно -->
-<div class="main-container">
-    <div class="app-header">
-        <div class="status-badge">
-            <div class="pulse-dot"></div>
-            <span id="headerTitle">Ядро: Среда (Аналитика & Учитель)</span>
-        </div>
-        <div class="header-controls">
-            <button class="voice-toggle-btn" id="voiceToggleBtn" onclick="toggleAutoVoice()" title="Автоматическая озвучка ответов">
-                🔊 Озвучка: ВЫКЛ
-            </button>
-            <button class="clear-btn" onclick="clearHistory()">🗑️ Очистить</button>
-            <select class="mode-select" id="modeSelect" onchange="changeMode()">
-                <option value="wednesday">❄️ Среда (Учитель / Логика)</option>
-                <option value="thursday">🔥 Четверг (Креатив / Гейминг)</option>
-            </select>
-        </div>
-    </div>
-    
-    <div class="chat-messages" id="chatMessages">
-        <div class="msg-row ai">
-            <div class="avatar">❄️</div>
-            <div class="bubble-wrap">
-                <div class="bubble" id="welcomeText">👋 Привет, Сулейман! Версия v6 с голосом и геолокацией активна.
-• Нажми на **🌦️ Погода в моём городе** слева или спроси «какая погода» — я сам определю, где ты, и скажу температуру!
-• Нажми на **🎙️ микрофон** внизу, чтобы говорить голосом, или включи **🔊 Озвучку** сверху!</div>
-                <button class="speak-msg-btn" onclick="speakText(document.getElementById('welcomeText').innerText)">🔈 Озвучить</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="input-container">
-        <div class="input-box-wrapper">
-            <button class="tool-icon" title="Узнать погоду" onclick="quickPrompt('Какая сейчас погода?')">🌦️</button>
-            <input type="text" id="userInput" placeholder="Спроси погоду, введи пример (2+2), вопрос по коду или нажми 🎙️..." onkeydown="if(event.key==='Enter')sendMessage()">
-            <button class="tool-icon" id="micBtn" title="Голосовой ввод (нажми и говори)" onclick="toggleMic()">🎙️</button>
-            <button class="send-btn" onclick="sendMessage()">➤</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    const WORKER_URL = "https://raspy-rain-b35e.suleimanisachanov123456789.workers.dev";
-    let chatHistory = [];
-    let autoVoice = false;
-    let recognition = null;
-    let isRecording = false;
-
-    // Уникальный ID пользователя для профиля
-    let uid = localStorage.getItem("sc_uid");
-    if (!uid) {
-        uid = "u_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
-        localStorage.setItem("sc_uid", uid);
-    }
-
-    // -------------------------------------------------------------------------
-    // СИНТЕЗ РЕЧИ (ГОЛОС БОТА)
-    // -------------------------------------------------------------------------
-    function toggleAutoVoice() {
-        autoVoice = !autoVoice;
-        const btn = document.getElementById('voiceToggleBtn');
-        if (autoVoice) {
-            btn.classList.add('active');
-            btn.innerText = "🔊 Озвучка: ВКЛ";
-            speakText("Голосовой модуль активирован!");
-        } else {
-            btn.classList.remove('active');
-            btn.innerText = "🔊 Озвучка: ВЫКЛ";
-            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-        }
-    }
-
-    function speakText(rawText) {
-        if (!('speechSynthesis' in window)) return;
-        window.speechSynthesis.cancel();
-
-        // Убираем метки [Среда]: / [Четверг]: и лишние символы для чистого чтения
-        const clean = rawText
-            .replace(/^\[(Среда|Четверг)\]:\s*/i, '')
-            .replace(/[`*#_~]/g, '')
-            .replace(/https?:\/\/\S+/g, 'ссылка');
-
-        const utter = new SpeechSynthesisUtterance(clean);
-        utter.lang = 'ru-RU';
-        const mode = document.getElementById('modeSelect').value;
-
-        // Разный темп и тон для Среды и Четверга
-        if (mode === 'thursday') {
-            utter.rate = 1.12;
-            utter.pitch = 1.05;
-        } else {
-            utter.rate = 1.0;
-            utter.pitch = 0.95;
-        }
-
-        const voices = window.speechSynthesis.getVoices();
-        const ruVoice = voices.find(v => v.lang.includes('ru'));
-        if (ruVoice) utter.voice = ruVoice;
-
-        window.speechSynthesis.speak(utter);
-    }
-
-    // -------------------------------------------------------------------------
-    // РАСПОЗНАВАНИЕ ГОЛОСА ЧЕРЕЗ МИКРОФОН
-    // -------------------------------------------------------------------------
-    function toggleMic() {
-        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRec) {
-            alert("Твой браузер не поддерживает голосовой ввод. Попробуй Chrome или Edge!");
-            return;
-        }
-
-        const micBtn = document.getElementById('micBtn');
-        const input = document.getElementById('userInput');
-
-        if (isRecording && recognition) {
-            recognition.stop();
-            return;
-        }
-
-        recognition = new SpeechRec();
-        recognition.lang = 'ru-RU';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.onstart = () => {
-            isRecording = true;
-            micBtn.classList.add('recording');
-            input.placeholder = "🎙️ Слушаю тебя... Говори!";
-        };
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            input.value = transcript;
-            sendMessage();
-        };
-
-        recognition.onerror = () => {
-            isRecording = false;
-            micBtn.classList.remove('recording');
-            input.placeholder = "Спроси погоду, введи пример (2+2), вопрос по коду или нажми 🎙️...";
-        };
-
-        recognition.onend = () => {
-            isRecording = false;
-            micBtn.classList.remove('recording');
-            input.placeholder = "Спроси погоду, введи пример (2+2), вопрос по коду или нажми 🎙️...";
-        };
-
-        recognition.start();
-    }
-
-    // -------------------------------------------------------------------------
-    // ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ И ЧАТ
-    // -------------------------------------------------------------------------
-    function changeMode() {
-        const mode = document.getElementById('modeSelect').value;
-        const body = document.getElementById('appBody');
-        const title = document.getElementById('headerTitle');
-        const welcome = document.getElementById('welcomeText');
-        
-        if (mode === 'wednesday') {
-            body.classList.remove('thursday-mode');
-            title.innerText = "Ядро: Среда (Аналитика & Учитель)";
-            welcome.innerText = "❄️ Системы Среды активны. Готова обучать программированию, считать примеры и проверять погоду в твоём городе.";
-        } else {
-            body.classList.add('thursday-mode');
-            title.innerText = "Ядро: Четверг (Креатив & Гейминг)";
-            welcome.innerText = "🔥 Йоу, Сулейман! Включён режим Четверга! Проверяем погоду, считаем матан, пишем код и запускаем ролки!";
-        }
-    }
-
-    function startNewChat() {
-        chatHistory = [];
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-        document.getElementById('chatMessages').innerHTML = `
-            <div class="msg-row ai">
-                <div class="avatar">✦</div>
-                <div class="bubble-wrap">
-                    <div class="bubble">✨ Новый диалог запущен! Спроси «какая погода», введи пример или нажми на микрофон 🎙️</div>
-                </div>
-            </div>`;
-    }
-
-    function clearHistory() {
-        startNewChat();
-    }
-
-    function quickPrompt(text) {
-        document.getElementById('userInput').value = text;
-        sendMessage();
-    }
-
-    async function sendMessage() {
-        const input = document.getElementById('userInput');
-        const messages = document.getElementById('chatMessages');
-        const mode = document.getElementById('modeSelect').value;
-        const text = input.value.trim();
-        if (!text) return;
-
-        messages.innerHTML += `
-            <div class="msg-row user">
-                <div class="avatar">Я</div>
-                <div class="bubble-wrap">
-                    <div class="bubble">${escapeHtml(text)}</div>
-                </div>
-            </div>`;
-        chatHistory.push({ role: "user", content: text });
-        
-        document.getElementById('historyList').innerHTML += `
-            <div class="history-item" onclick="quickPrompt('${escapeHtml(text).replace(/'/g, "\\'")}')">💬 ${escapeHtml(text)}</div>`;
-
-        input.value = '';
-        messages.scrollTop = messages.scrollHeight;
-
-        const loadId = 'load-' + Date.now();
-        messages.innerHTML += `
-            <div class="msg-row ai" id="${loadId}">
-                <div class="avatar">✦</div>
-                <div class="bubble-wrap">
-                    <div class="bubble">⚡ Обрабатываю запрос...</div>
-                </div>
-            </div>`;
-        messages.scrollTop = messages.scrollHeight;
-
-        try {
-            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Berlin";
-            const url = `${WORKER_URL}/?query=${encodeURIComponent(text)}&mode=${mode}&uid=${encodeURIComponent(uid)}&tz=${encodeURIComponent(tz)}&history=${encodeURIComponent(JSON.stringify(chatHistory.slice(-10)))}`;
-            
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            if (data.location) {
-                document.getElementById('geoBadge').innerText = "📍 " + data.location;
-            }
-
-            const replyText = data.response || "Ответ получен.";
-            chatHistory.push({ role: "assistant", content: replyText });
-
-            const safeReply = escapeHtml(replyText);
-            const loadEl = document.getElementById(loadId);
-            loadEl.outerHTML = `
-                <div class="msg-row ai">
-                    <div class="avatar">${mode === 'wednesday' ? '❄️' : '🔥'}</div>
-                    <div class="bubble-wrap">
-                        <div class="bubble">${safeReply}</div>
-                        <button class="speak-msg-btn" onclick="speakText(${JSON.stringify(replyText).replace(/"/g, '&quot;')})">🔈 Озвучить</button>
-                    </div>
-                </div>`;
-
-            if (autoVoice) {
-                speakText(replyText);
-            }
-        } catch (err) {
-            const loadEl = document.getElementById(loadId);
-            loadEl.outerHTML = `
-                <div class="msg-row ai">
-                    <div class="avatar">⚠️</div>
-                    <div class="bubble-wrap">
-                        <div class="bubble">❌ Ошибка связи с сервером Cloudflare. Проверь, что код в воркере сохранён (Deploy)!</div>
-                    </div>
-                </div>`;
-        }
-        messages.scrollTop = messages.scrollHeight;
-    }
-
-    function escapeHtml(text) {
-        return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-</script>
-
-</body>
-</html>
+                <div class="feature-
