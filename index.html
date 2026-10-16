@@ -43,30 +43,9 @@
             overflow: hidden;
         }
 
-        /* Авторизация админа */
-        #authModal {
-            position: fixed; inset: 0; background: rgba(8, 6, 5, 0.92); backdrop-filter: blur(12px);
-            display: flex; align-items: center; justify-content: center; z-index: 1000;
-        }
-        .auth-box {
-            background: var(--surface-color); border: 1px solid var(--accent-orange); padding: 35px;
-            border-radius: 24px; width: 360px; display: flex; flex-direction: column; gap: 18px;
-            box-shadow: 0 0 35px var(--accent-glow); text-align: center;
-        }
-        .auth-box h3 { color: #fff; font-size: 22px; font-weight: 700; }
-        .auth-box input {
-            background: var(--bg-dark); border: 1px solid var(--border-color); padding: 13px;
-            border-radius: 12px; color: #fff; outline: none; font-size: 15px; text-align: center;
-        }
-        .auth-box input:focus { border-color: var(--accent-orange); box-shadow: 0 0 15px var(--accent-glow); }
-        .auth-box button {
-            background: var(--accent-orange); color: #fff; border: none; padding: 13px; 
-            border-radius: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px var(--accent-glow);
-        }
-
         /* Админ-панель */
         #adminPanel {
-            display: none; background: rgba(255, 107, 0, 0.1); border: 1px solid var(--accent-orange);
+            background: rgba(255, 107, 0, 0.1); border: 1px solid var(--accent-orange);
             padding: 12px 14px; border-radius: 12px; margin-bottom: 12px; font-size: 12px; line-height: 1.5;
         }
 
@@ -154,4 +133,257 @@
         .tool-icon { font-size: 18px; cursor: pointer; opacity: 0.8; padding: 6px; border-radius: 50%; background: transparent; color: #fff; border: none; }
         .tool-icon:hover { opacity: 1; background: var(--surface-hover); }
         .tool-icon.recording { background: rgba(255, 8, 68, 0.2); animation: recPulse 1s infinite; }
-        .input-box-wrapper input { flex: 1;
+        .input-box-wrapper input { flex: 1; background: transparent; border: none; color: #fff; font-size: 15px; outline: none; padding-left: 6px; }
+        .send-btn { background: var(--accent-orange); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 16px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px var(--accent-glow); }
+        .send-btn:hover { transform: scale(1.06); background: var(--accent-orange-hover); }
+    </style>
+</head>
+<body id="appBody" class="thursday-mode">
+
+<!-- Сайдбар -->
+<div class="sidebar">
+    <div class="brand-logo">
+        <span>GEMINI ORANGE UI</span>
+        <span class="geo-badge" id="geoBadge">Online</span>
+    </div>
+
+    <!-- Админ-панель (активна сразу) -->
+    <div id="adminPanel">
+        <b>Панель администратора</b><br>
+        Активных устройств: <span id="devicesCountVal">...</span><br>
+        Статус: Система активна 🚀
+    </div>
+
+    <button class="new-chat-btn" onclick="startNewChat()">
+        <span>＋</span> Новый чат
+    </button>
+
+    <div class="section-label">Инструменты</div>
+    <div class="features-grid">
+        <div class="feature-card" onclick="quickPrompt('Какая погода сейчас?')">
+            <div class="feature-icon">🌦️</div>
+            <div class="feature-info">
+                <div class="feature-title">Погода</div>
+                <div class="feature-desc">Авто-локация</div>
+            </div>
+        </div>
+        <div class="feature-card" onclick="quickPrompt('Напиши код на JS')">
+            <div class="feature-icon">💻</div>
+            <div class="feature-info">
+                <div class="feature-title">Кодинг</div>
+                <div class="feature-desc">Скрипты и алгоритмы</div>
+            </div>
+        </div>
+        <div class="feature-card" onclick="quickPrompt('Реши пример: (150 * 4) / 2 + 75')">
+            <div class="feature-icon">📐</div>
+            <div class="feature-info">
+                <div class="feature-title">Калькулятор</div>
+                <div class="feature-desc">Математика на лету</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-label">История</div>
+    <div class="history-list" id="historyList">
+        <div class="history-item" onclick="quickPrompt('/помощь')">Справка / Помощь</div>
+    </div>
+</div>
+
+<!-- Основная область -->
+<div class="main-container">
+    <div class="app-header">
+        <div class="status-badge">
+            <div class="pulse-dot"></div>
+            <span id="headerTitle">Ядро: Четверг (Orange Gemini Style)</span>
+        </div>
+        <div class="header-controls">
+            <button class="voice-toggle-btn" id="voiceToggleBtn" onclick="toggleAutoVoice()">🔊 Озвучка: ВЫКЛ</button>
+            <button class="clear-btn" onclick="clearHistory()">Очистить память</button>
+            <select class="mode-select" id="modeSelect" onchange="changeMode()">
+                <option value="thursday">Четверг (Оранж)</option>
+                <option value="wednesday">Среда (Синий)</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+        <div class="msg-row ai">
+            <div class="avatar">G</div>
+            <div class="bubble-wrap">
+                <div class="bubble" id="welcomeText">Йоу, Сулейман! Форма входа убрана, сайт открывается сразу во всей красе. Админ-панель активна слева, контекст памяти работает на максимум. Я Четверг, жду задачу!</div>
+                <button class="speak-msg-btn" onclick="speakText(document.getElementById('welcomeText').innerText)">Озвучить</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="input-container">
+        <div class="input-box-wrapper">
+            <button class="tool-icon" onclick="quickPrompt('Какая погода?')">🌦️</button>
+            <input type="text" id="userInput" placeholder="Введите запрос, пример или задачу..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <button class="tool-icon" id="micBtn" onclick="toggleMic()">🎙️</button>
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const WORKER_URL = "https://raspy-rain-b35e.suleimanisachanov123456789.workers.dev";
+    
+    let chatHistory = [];
+    let autoVoice = false;
+    let recognition = null;
+    let isRecording = false;
+
+    // Автоматически подгружаем статистику устройств при старте
+    fetchStats();
+    async function fetchStats() {
+        try {
+            const res = await fetch(`${WORKER_URL}/?query=${encodeURIComponent('/admin')}&admin=true`);
+            const data = await res.json();
+            if (data.devicesCount !== undefined) {
+                document.getElementById('devicesCountVal').innerText = data.devicesCount;
+            }
+        } catch (e) {}
+    }
+
+    function toggleAutoVoice() {
+        autoVoice = !autoVoice;
+        const btn = document.getElementById('voiceToggleBtn');
+        if (autoVoice) {
+            btn.classList.add('active');
+            btn.innerText = "🔊 Озвучка: ВКЛ";
+            speakText("Голосовой модуль активирован!");
+        } else {
+            btn.classList.remove('active');
+            btn.innerText = "🔊 Озвучка: ВЫКЛ";
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+    }
+
+    function speakText(rawText) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        
+        const clean = rawText
+            .replace(/^\[(Среда|Четверг)\]:\s*/i, '')
+            .replace(/[`*#_~()[\]]/g, '')
+            .replace(/https?:\/\/\S+/g, 'ссылка');
+
+        const utter = new SpeechSynthesisUtterance(clean);
+        utter.lang = 'ru-RU';
+
+        const mode = document.getElementById('modeSelect').value;
+        if (mode === 'wednesday') {
+            utter.pitch = 1.15;
+            utter.rate = 0.96;
+        } else {
+            utter.pitch = 0.92;
+            utter.rate = 1.02;
+        }
+
+        const voices = window.speechSynthesis.getVoices();
+        const bestVoice = voices.find(v => v.lang === 'ru-RU' && (v.name.includes('Google') || v.name.includes('Microsoft') || v.name.includes('Natural') || v.name.includes('Elina')));
+        if (bestVoice) {
+            utter.voice = bestVoice;
+        } else {
+            const fallback = voices.find(v => v.lang.includes('ru'));
+            if (fallback) utter.voice = fallback;
+        }
+
+        window.speechSynthesis.speak(utter);
+    }
+
+    function toggleMic() {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) { alert("Голосовой ввод не поддерживается."); return; }
+        const micBtn = document.getElementById('micBtn');
+        const input = document.getElementById('userInput');
+        if (isRecording && recognition) { recognition.stop(); return; }
+        recognition = new SpeechRec();
+        recognition.lang = 'ru-RU';
+        recognition.onstart = () => { isRecording = true; micBtn.classList.add('recording'); };
+        recognition.onresult = (e) => { input.value = e.results[0][0].transcript; sendMessage(); };
+        recognition.onend = () => { isRecording = false; micBtn.classList.remove('recording'); };
+        recognition.start();
+    }
+
+    function changeMode() {
+        const mode = document.getElementById('modeSelect').value;
+        const body = document.getElementById('appBody');
+        const title = document.getElementById('headerTitle');
+        const welcome = document.getElementById('welcomeText');
+        
+        if (mode === 'wednesday') {
+            body.classList.add('wednesday-mode');
+            title.innerText = "Ядро: Среда (Google Gemini Blue Style)";
+            welcome.innerText = "Привет, Сулейман! Я Среда. Контекст на месте, жду задачи по учебе.";
+        } else {
+            body.classList.remove('wednesday-mode');
+            title.innerText = "Ядро: Четверг (Google Gemini Orange Style)";
+            welcome.innerText = "Йоу, Сулейман! Четверг на связи! Всё загружено, погнали работать!";
+        }
+    }
+
+    function startNewChat() { 
+        chatHistory = []; 
+        document.getElementById('chatMessages').innerHTML = `<div class="msg-row ai"><div class="avatar">G</div><div class="bubble-wrap"><div class="bubble">Память очищена. Новый диалог начат.</div></div></div>`; 
+    }
+    
+    function clearHistory() { startNewChat(); }
+    function quickPrompt(text) { document.getElementById('userInput').value = text; sendMessage(); }
+
+    async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const messages = document.getElementById('chatMessages');
+        const mode = document.getElementById('modeSelect').value;
+        const text = input.value.trim();
+        if (!text) return;
+
+        messages.innerHTML += `<div class="msg-row user"><div class="avatar">Я</div><div class="bubble-wrap"><div class="bubble">${escapeHtml(text)}</div></div></div>`;
+        
+        chatHistory.push({ role: "user", content: text });
+        if (chatHistory.length > 12) chatHistory.shift();
+
+        input.value = '';
+        messages.scrollTop = messages.scrollHeight;
+
+        const loadId = 'load-' + Date.now();
+        messages.innerHTML += `<div class="msg-row ai" id="${loadId}"><div class="avatar">G</div><div class="bubble-wrap"><div class="bubble">Думаю...</div></div></div>`;
+
+        try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Berlin";
+            const contextString = chatHistory.slice(-6).map(m => `${m.role === 'user' ? 'Сулейман' : 'ИИ'}: ${m.content}`).join("\n");
+            const fullQuery = contextString + "\nНовый вопрос: " + text;
+
+            const url = `${WORKER_URL}/?query=${encodeURIComponent(fullQuery)}&mode=${mode}&admin=true&tz=${encodeURIComponent(tz)}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            if (data.devicesCount !== undefined) {
+                document.getElementById('devicesCountVal').innerText = data.devicesCount;
+            }
+
+            const replyText = data.response || "Готово.";
+            chatHistory.push({ role: "assistant", content: replyText });
+
+            const loadEl = document.getElementById(loadId);
+            loadEl.outerHTML = `<div class="msg-row ai"><div class="avatar">G</div><div class="bubble-wrap"><div class="bubble">${escapeHtml(replyText)}</div><button class="speak-msg-btn" onclick="speakText(${JSON.stringify(replyText).replace(/"/g, '&quot;')})">Озвучить</button></div></div>`;
+
+            if (autoVoice) speakText(replyText);
+        } catch (err) {
+            document.getElementById(loadId).outerHTML = `<div class="msg-row ai"><div class="avatar">G</div><div class="bubble-wrap"><div class="bubble">Ошибка связи с сервером.</div></div></div>`;
+        }
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+    }
+</script>
+
+</body>
+</html>
