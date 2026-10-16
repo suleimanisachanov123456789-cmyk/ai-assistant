@@ -1,194 +1,693 @@
-// =============================================================================
-// СЕРВЕР (Cloudflare Worker) · Среда / Четверг · Gemini 4 Argon Stable Core
-// Автор и разработчик: Исаханов Сулейман
-// =============================================================================
-
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
-
-const CREATOR = "Исаханов Сулейман";
-const DEFAULT_TZ = "Europe/Berlin";
-const MAX_QUERY = 1500;
-
-// Точная модель Gemini из панели Cloudflare
-const TARGET_MODEL = "google/gemini-4-argon";
-
-const esc = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const T = (mode) => (mode === "thursday" ? "[Четверг]: " : "[Среда]: ");
-const say = (mode, w, t) => T(mode) + (mode === "thursday" && t ? t : w);
-
-function fmtNum(n) { return isFinite(n) ? String(Number(n.toPrecision(10))) : String(n); }
-
-async function getJSON(url, ms = 5000) {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), ms);
-  try {
-    const r = await fetch(url, { signal: ctrl.signal, headers: { "User-Agent": "SredaChetverg/StableCore" } });
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    return await r.json();
-  } finally { clearTimeout(t); }
-}
-
-// Модерация безопасности
-const stemRe = (list) => new RegExp("(^|[^a-zа-я0-9])(?:" + list.map(esc).join("|") + ")", "i");
-const R = {
-  sex: stemRe(["секс", "порн", "интим", "эрот", "голый", "голая", "sex", "porn", "nude", "erotic"]),
-  minorStrong: stemRe(["ребен", "дети", "детск", "малолет", "child", "kids", "minor", "underage"]),
-};
-
-function classify(text) {
-  const base = String(text).toLowerCase().replace(/ё/g, "е");
-  if (R.sex.test(base) && R.minorStrong.test(base)) return "MINOR_SEXUAL";
-  if (R.sex.test(base)) return "SEXUAL";
-  return null;
-}
-const safeOut = (s) => (classify(s) ? "Этот текст нарушает правила безопасности чата." : s);
-
-// KV / Кэш устройств
-const MEM = new Map();
-async function kvGet(env, key) {
-  if (env && env.BANS) { try { const v = await env.BANS.get(key); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
-  const r = MEM.get(key);
-  return (r && (!r.exp || r.exp > Date.now())) ? r.val : null;
-}
-async function kvPut(env, key, val, ttlSec) {
-  if (env && env.BANS) {
-    try { await env.BANS.put(key, JSON.stringify(val), ttlSec ? { expirationTtl: Math.max(60, ttlSec) } : undefined); } catch (e) {}
-    return;
-  }
-  MEM.set(key, { val, exp: ttlSec ? Date.now() + ttlSec * 1000 : 0 });
-}
-
-// Погода (Open-Meteo)
-const WMO_CODES = { 0: "ясно ☀️", 1: "преимущественно ясно 🌤️", 2: "переменная облачность ⛅", 3: "пасмурно ☁️", 61: "дождь 🌧️", 71: "снег 🌨️", 95: "гроза ⚡" };
-async function fetchWeatherByCoords(lat, lon, placeName, mode) {
-  try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto`;
-    const data = await getJSON(url, 4500);
-    if (!data || !data.current) return null;
-    const c = data.current;
-    const desc = WMO_CODES[c.weather_code] || "обычная погода";
-    const loc = placeName ? `в городе ${placeName}` : "в твоей локации";
-    return say(mode, `Погода ${loc} сейчас: ${desc}, температура ${Math.round(c.temperature_2m)}°C.`, `Метеоспутники на связи! 🌍 Сейчас ${loc} ${desc}, ${Math.round(c.temperature_2m)}°C 🔥`);
-  } catch (e) { return null; }
-}
-
-async function weatherReply(mode, q, request) {
-  if (!/(погод|температур|дождь|снег)/i.test(q)) return null;
-  const cf = request.cf || {};
-  if (cf.latitude && cf.longitude) return await fetchWeatherByCoords(cf.latitude, cf.longitude, cf.city || "", mode);
-  return await fetchWeatherByCoords(50.1109, 8.6821, "Франкфурт-на-Майне", mode);
-}
-
-// Калькулятор
-function mathReply(mode, text) {
-  try {
-    const clean = text.replace(/реши|сколько будет|посчитай|=|\?/gi, "").replace(/умножить/g, "*").replace(/разделить/g, "/").replace(/плюс/g, "+").replace(/минус/g, "-").replace(/[^0-9+\-*/().*]/g, "").trim();
-    if (!/\d/.test(clean) || !/[+\-*/]/.test(clean)) return null;
-    const res = Function(`"use strict"; return (${clean})`)();
-    if (isFinite(res)) return say(mode, `Расчёт: ${clean} = ${fmtNum(res)}`, `Изи матан! ${clean} = ${fmtNum(res)} 🧠🔥`);
-  } catch (e) {}
-  return null;
-}
-
-// Запрос к Gemini 4 Argon через привязку Workers AI
-async function askGeminiAI(env, mode, query) {
-  if (!env || !env.AI) return null;
-
-  const systemPrompt = mode === "thursday"
-    ? "Ты — Четверг, энергичный парень-напарник, лучший друг Сулеймана Исаханова. Отвечай бодро, с юмором, крутым сленгом, начинай ответ с '[Четверг]: '."
-    : "Ты — Среда, умная девочка-наставник, помогаешь Сулейману Исаханову. Отвечай спокойно, умно и структурировано, начинай ответ с '[Среда]: '.";
-
-  try {
-    const res = await env.AI.run(TARGET_MODEL, {
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: systemPrompt + "\n\nЗапрос пользователя: " + query }
-          ]
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Среда и Четверг — Gemini Orange Ultimate UI</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+    <style>
+        :root {
+            --bg-dark: #0f0d0c;
+            --surface-color: #1a1614;
+            --surface-hover: #26201d;
+            --border-color: rgba(255, 107, 0, 0.25);
+            --accent: #ff6b00;
+            --accent-hover: #ff8533;
+            --accent-glow: rgba(255, 107, 0, 0.35);
+            --text-main: #f5f2ef;
+            --text-muted: #a89a91;
+            --code-bg: #090807;
+            --success: #00e676;
         }
-      ],
-      generationConfig: {
-        maxOutputTokens: 800,
-        temperature: 0.75
-      }
-    });
 
-    // Универсальный парсер ответа для разных форматов моделей в Cloudflare
-    if (res && res.candidates && res.candidates[0]?.content?.parts?.[0]?.text) {
-      return res.candidates[0].content.parts[0].text.trim();
+        body.wednesday-mode {
+            --bg-dark: #090c12;
+            --surface-color: #111722;
+            --surface-hover: #192233;
+            --border-color: rgba(0, 242, 254, 0.25);
+            --accent: #00f2fe;
+            --accent-hover: #4facfe;
+            --accent-glow: rgba(0, 242, 254, 0.35);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --code-bg: #05070b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; }
+        
+        body {
+            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* САЙДБАР */
+        .sidebar {
+            width: 310px;
+            background: var(--surface-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 18px;
+            gap: 12px;
+            z-index: 10;
+            overflow-y: auto;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: 700;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .geo-badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* АДМИН-ПАНЕЛЬ */
+        #adminPanel {
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.12), rgba(0, 0, 0, 0.3));
+            border: 1px solid var(--accent);
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            line-height: 1.6;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        body.wednesday-mode #adminPanel {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.12), rgba(0, 0, 0, 0.3));
+        }
+
+        .admin-title {
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.8px;
+        }
+
+        .new-chat-btn {
+            background: var(--accent);
+            border: none;
+            color: #000;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        .new-chat-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-top: 6px;
+        }
+
+        .features-grid { display: flex; flex-direction: column; gap: 6px; }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 9px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-card:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .feature-info { display: flex; flex-direction: column; gap: 1px; }
+        .feature-title { font-size: 13px; font-weight: 600; color: #fff; }
+        .feature-desc { font-size: 11px; color: var(--text-muted); }
+
+        .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
+        .history-item {
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            background: rgba(255,255,255,0.015);
+            border: 1px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .history-item:hover { background: var(--surface-hover); color: #fff; border-color: var(--border-color); }
+
+        /* ОСНОВНАЯ ОБЛАСТЬ */
+        .main-container { flex: 1; display: flex; flex-direction: column; height: 100vh; background: var(--bg-dark); }
+        
+        .app-header {
+            padding: 12px 24px;
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-badge { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; }
+        .pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+
+        .header-controls { display: flex; gap: 8px; align-items: center; }
+        .btn-ctrl {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 7px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-ctrl:hover { border-color: var(--accent); background: var(--surface-hover); }
+        .btn-ctrl.active { border-color: var(--accent); background: var(--accent-glow); color: #fff; }
+        .btn-danger:hover { background: rgba(255, 60, 60, 0.15); border-color: #ff5252; color: #ff6b6b; }
+        
+        .mode-select {
+            background: var(--surface-hover);
+            color: #fff;
+            border: 1px solid var(--accent);
+            padding: 7px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+        }
+        .mode-select option { background: var(--surface-color); color: #fff; }
+
+        /* СООБЩЕНИЯ */
+        .chat-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            scroll-behavior: smooth;
+        }
+        .msg-row { display: flex; gap: 14px; width: 100%; align-items: flex-start; }
+        .msg-row.user { justify-content: flex-end; }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+            flex-shrink: 0;
+            background: var(--surface-hover);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+        .user .avatar {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            order: 2;
+        }
+
+        .bubble-wrap { display: flex; flex-direction: column; gap: 6px; max-width: 82%; }
+        .bubble {
+            padding: 15px 18px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        .user .bubble {
+            background: var(--surface-hover);
+            border: 1px solid var(--accent);
+            color: #fff;
+            border-top-right-radius: 4px;
+        }
+        .ai .bubble {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-top-left-radius: 4px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+        }
+        
+        .ai .bubble pre {
+            background: var(--code-bg);
+            padding: 14px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+            border: 1px solid var(--border-color);
+            color: #ff9e44;
+        }
+        body.wednesday-mode .ai .bubble pre { color: #5ce1e6; }
+        .ai .bubble code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.4); padding: 2px 6px; border-radius: 4px; }
+
+        .msg-actions { display: flex; gap: 12px; align-items: center; padding-left: 4px; }
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-btn:hover { color: var(--accent); }
+
+        /* БЫСТРЫЕ ЧИПСЫ НАД ПОЛЕМ ВВОДА */
+        .quick-chips {
+            display: flex;
+            gap: 8px;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px 8px 24px;
+            overflow-x: auto;
+        }
+        .chip {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .chip:hover { border-color: var(--accent); color: #fff; background: var(--surface-hover); }
+
+        /* ПОЛЕ ВВОДА */
+        .input-container { padding: 4px 24px 20px 24px; display: flex; justify-content: center; }
+        .input-box-wrapper {
+            width: 100%;
+            max-width: 900px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 26px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        }
+        .input-box-wrapper:focus-within { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+        
+        .tool-icon { font-size: 18px; cursor: pointer; opacity: 0.85; padding: 6px; border-radius: 50%; background: transparent; color: #fff; border: none; }
+        .tool-icon:hover { opacity: 1; background: var(--surface-hover); }
+        .tool-icon.recording { background: rgba(255, 8, 68, 0.25); animation: recPulse 1s infinite; }
+        
+        .input-box-wrapper input { flex: 1; background: transparent; border: none; color: #fff; font-size: 15px; outline: none; padding-left: 6px; }
+        
+        .send-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 17px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+        .send-btn:hover { transform: scale(1.07); background: var(--accent-hover); }
+    </style>
+</head>
+<body id="appBody" class="thursday-mode">
+
+<!-- САЙДБАР -->
+<div class="sidebar">
+    <div class="brand-logo">
+        <span>⚡ GEMINI ARGON UI</span>
+        <span class="geo-badge" id="pingBadge">Ping: 12ms</span>
+    </div>
+
+    <!-- АДМИН-ПАНЕЛЬ СУЛЕЙМАНА -->
+    <div id="adminPanel">
+        <div class="admin-title">
+            <span>👑 Админ: Сулейман</span>
+            <span style="color:var(--success)">● ONLINE</span>
+        </div>
+        Активных устройств: <b id="devicesCountVal">1</b><br>
+        Ядро: <b>Gemini 4 Argon + MegaBase</b><br>
+        Память контекста: <b id="memCountVal">0 / 12</b>
+    </div>
+
+    <button class="new-chat-btn" onclick="startNewChat()">
+        <span>＋</span> Новый диалог
+    </button>
+
+    <div class="section-label">Модули ядра</div>
+    <div class="features-grid">
+        <div class="feature-card" onclick="quickPrompt('Какая погода сейчас?')">
+            <div class="feature-icon">🌦️</div>
+            <div class="feature-info">
+                <div class="feature-title">Метеостанция</div>
+                <div class="feature-desc">Точная погода по локации</div>
+            </div>
+        </div>
+        <div class="feature-card" onclick="quickPrompt('Напиши крутой скрипт на JavaScript с объяснением')">
+            <div class="feature-icon">💻</div>
+            <div class="feature-info">
+                <div class="feature-title">Генератор кода</div>
+                <div class="feature-desc">JS, Python, HTML, Roblox Luau</div>
+            </div>
+        </div>
+        <div class="feature-card" onclick="quickPrompt('Реши пример: (250 * 4) / 2 + 500')">
+            <div class="feature-icon">📐</div>
+            <div class="feature-info">
+                <div class="feature-title">Супер-калькулятор</div>
+                <div class="feature-desc">Расчёты и формулы на лету</div>
+            </div>
+        </div>
+        <div class="feature-card" onclick="quickPrompt('Расскажи про тепловые трубки в процессорах и ноутбуках')">
+            <div class="feature-icon">🔬</div>
+            <div class="feature-info">
+                <div class="feature-title">Наука и школа</div>
+                <div class="feature-desc">Физика, история, литература</div>
+            </div>
+        </div>
+        <div class="feature-card" onclick="quickPrompt('Го обсудим лор Рика Прайма или тактики в Brawl Stars и футболе!')">
+            <div class="feature-icon">🎮</div>
+            <div class="feature-info">
+                <div class="feature-title">Гейминг и Футбол</div>
+                <div class="feature-desc">Игры, ЦЗ тактики, Рик и Морти</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-label">Быстрые команды</div>
+    <div class="history-list" id="historyList">
+        <div class="history-item" onclick="quickPrompt('/admin')">👑 Проверить статус сервера (/admin)</div>
+        <div class="history-item" onclick="quickPrompt('/помощь')">📋 Полный список возможностей</div>
+        <div class="history-item" onclick="quickPrompt('Напиши скрипт для парты или игры в Roblox Studio на Luau')">🧱 Скрипт для Roblox Studio</div>
+        <div class="history-item" onclick="quickPrompt('Как защитнику (ЦЗ) правильно встречать нападающего 1 в 1?')">⚽ Советы для ЦЗ в футболе</div>
+    </div>
+</div>
+
+<!-- ОСНОВНАЯ ОБЛАСТЬ -->
+<div class="main-container">
+    <div class="app-header">
+        <div class="status-badge">
+            <div class="pulse-dot"></div>
+            <span id="headerTitle">Ядро: Четверг (Огненный Напарник)</span>
+        </div>
+        <div class="header-controls">
+            <button class="btn-ctrl" id="voiceToggleBtn" onclick="toggleAutoVoice()">🔊 Озвучка: ВЫКЛ</button>
+            <button class="btn-ctrl btn-danger" onclick="clearHistory()">🗑️ Сброс памяти</button>
+            <select class="mode-select" id="modeSelect" onchange="changeMode()">
+                <option value="thursday">🔥 Четверг (Дерзкий Бро)</option>
+                <option value="wednesday">❄️ Среда (Умный Ментор)</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+        <div class="msg-row ai">
+            <div class="avatar">Ч</div>
+            <div class="bubble-wrap">
+                <div class="bubble" id="welcomeText">[Четверг]: Йоу, Сулейман! Наконец-то интерфейс и сервер стоят на своих местах! Никаких белых экранов и никакого нытья — я заряжен на полную катушку! Внутри меня Gemini 4 Argon и огромная база знаний по кодингу, играм, футболу и школе. Кидай любую задачу, разнесём её в пух и прах! 🔥😎</div>
+                <div class="msg-actions">
+                    <button class="action-btn" onclick="speakText(document.getElementById('welcomeText').innerText)">🔊 Озвучить</button>
+                    <button class="action-btn" onclick="copyText(document.getElementById('welcomeText').innerText)">📋 Копировать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- БЫСТРЫЕ ЧИПСЫ -->
+    <div class="quick-chips">
+        <div class="chip" onclick="quickPrompt('Напиши код игры-кликера на HTML/JS')">⚡ Код игры на JS</div>
+        <div class="chip" onclick="quickPrompt('Какая погода сегодня?')">🌦️ Погода сейчас</div>
+        <div class="chip" onclick="quickPrompt('Кто создатель этого проекта?')">👑 Кто создатель?</div>
+        <div class="chip" onclick="quickPrompt('Объясни теорему Фалеса просто и понятно')">📐 Теорема Фалеса</div>
+        <div class="chip" onclick="quickPrompt('Характеристика Стародума из Недоросля')">📚 Стародум</div>
+    </div>
+    
+    <div class="input-container">
+        <div class="input-box-wrapper">
+            <button class="tool-icon" title="Погода" onclick="quickPrompt('Какая погода?')">🌦️</button>
+            <input type="text" id="userInput" placeholder="Напиши задачу, код, пример или вопрос..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <button class="tool-icon" id="micBtn" title="Голосовой ввод" onclick="toggleMic()">🎙️</button>
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const WORKER_URL = "https://raspy-rain-b35e.suleimanisachanov123456789.workers.dev";
+    
+    let chatHistory = [];
+    let autoVoice = false;
+    let recognition = null;
+    let isRecording = false;
+
+    fetchStats();
+    async function fetchStats() {
+        const t0 = performance.now();
+        try {
+            const res = await fetch(`${WORKER_URL}/?query=${encodeURIComponent('/admin')}&admin=true`);
+            const data = await res.json();
+            const ping = Math.round(performance.now() - t0);
+            document.getElementById('pingBadge').innerText = `Ping: ${ping}ms`;
+            if (data.devicesCount !== undefined) {
+                document.getElementById('devicesCountVal').innerText = data.devicesCount;
+            }
+        } catch (e) {
+            document.getElementById('pingBadge').innerText = `Offline`;
+        }
     }
-    if (res && res.response) {
-      return res.response.trim();
+
+    function copyText(txt) {
+        navigator.clipboard.writeText(txt);
     }
-    if (typeof res === 'string') {
-      return res.trim();
+
+    function toggleAutoVoice() {
+        autoVoice = !autoVoice;
+        const btn = document.getElementById('voiceToggleBtn');
+        if (autoVoice) {
+            btn.classList.add('active');
+            btn.innerText = "🔊 Озвучка: ВКЛ";
+            speakText("Голосовой модуль активирован!");
+        } else {
+            btn.classList.remove('active');
+            btn.innerText = "🔊 Озвучка: ВЫКЛ";
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
     }
-    return null;
-  } catch (e) {
-    try {
-      // Страховочный вариант на случай ошибки модели Gemini
-      const resFallback = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: query }
-        ],
-        max_tokens: 800
-      });
-      return resFallback && resFallback.response ? resFallback.response.trim() : null;
-    } catch (err) {
-      return null;
+
+    function speakText(rawText) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        
+        const clean = rawText
+            .replace(/^\[(Среда|Четверг)\]:\s*/i, '')
+            .replace(/[`*#_~()[\]]/g, '')
+            .replace(/https?:\/\/\S+/g, 'ссылка');
+
+        const utter = new SpeechSynthesisUtterance(clean);
+        utter.lang = 'ru-RU';
+
+        const mode = document.getElementById('modeSelect').value;
+        if (mode === 'wednesday') {
+            utter.pitch = 1.15;
+            utter.rate = 0.98;
+        } else {
+            utter.pitch = 0.90;
+            utter.rate = 1.04;
+        }
+
+        const voices = window.speechSynthesis.getVoices();
+        const bestVoice = voices.find(v => v.lang === 'ru-RU' && (v.name.includes('Google') || v.name.includes('Microsoft') || v.name.includes('Natural')));
+        if (bestVoice) utter.voice = bestVoice;
+
+        window.speechSynthesis.speak(utter);
     }
-  }
-}
 
-export default {
-  async fetch(request, env, ctx) {
-    if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
-
-    try {
-      const url = new URL(request.url);
-      const query = (url.searchParams.get("query") || "").slice(0, MAX_QUERY).trim();
-      const mode = url.searchParams.get("mode") === "wednesday" ? "wednesday" : "thursday";
-      const isAdmin = url.searchParams.get("admin") === "true";
-
-      const ip = request.headers.get("CF-Connecting-IP") || "127.0.0.1";
-      let activeIps = await kvGet(env, "active_ips") || {};
-      activeIps[ip] = Date.now();
-      const now = Date.now();
-      for (const k in activeIps) { if (now - activeIps[k] > 300000) delete activeIps[k]; }
-      await kvPut(env, "active_ips", activeIps, 600);
-      const devicesCount = Object.keys(activeIps).length;
-
-      if (isAdmin && (query === "/admin" || query === "статистика")) {
-        return new Response(JSON.stringify({
-          response: `👑 ПАНЕЛЬ АДМИНИСТРАТОРА (Сулейман):\n• Активных устройств сейчас: ${devicesCount}\n• Статус ядра: Gemini 4 Argon (${TARGET_MODEL}) активен 🚀\n• Создатель: ${CREATOR}`,
-          devicesCount,
-          isAdmin: true
-        }), { headers: { ...CORS, "Content-Type": "application/json" } });
-      }
-
-      let answer = null;
-      answer = await weatherReply(mode, query, request);
-      if (!answer) answer = mathReply(mode, query);
-      if (!answer) answer = await askGeminiAI(env, mode, query);
-
-      if (!answer) {
-        answer = say(mode, `Запрос принят: ${query}`, `Йоу! Запрос «${query}» успешно обработан через Gemini 4 Argon! 🔥`);
-      }
-
-      return new Response(JSON.stringify({ response: safeOut(answer), devicesCount }), {
-        headers: { ...CORS, "Content-Type": "application/json" },
-      });
-
-    } catch (err) {
-      return new Response(JSON.stringify({ response: "Сервер активен и готов к работе." }), {
-        headers: { ...CORS, "Content-Type": "application/json" },
-      });
+    function toggleMic() {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) { alert("Голосовой ввод не поддерживается в этом браузере."); return; }
+        const micBtn = document.getElementById('micBtn');
+        const input = document.getElementById('userInput');
+        if (isRecording && recognition) { recognition.stop(); return; }
+        recognition = new SpeechRec();
+        recognition.lang = 'ru-RU';
+        recognition.onstart = () => { isRecording = true; micBtn.classList.add('recording'); };
+        recognition.onresult = (e) => { input.value = e.results[0][0].transcript; sendMessage(); };
+        recognition.onend = () => { isRecording = false; micBtn.classList.remove('recording'); };
+        recognition.start();
     }
-  },
-};
+
+    function changeMode() {
+        const mode = document.getElementById('modeSelect').value;
+        const body = document.getElementById('appBody');
+        const title = document.getElementById('headerTitle');
+        const welcome = document.getElementById('welcomeText');
+        
+        if (mode === 'wednesday') {
+            body.classList.add('wednesday-mode');
+            title.innerText = "Ядро: Среда (Холодный Аналитический Ум)";
+            welcome.innerText = "[Среда]: Привет, Сулейман. Я Среда. Все аналитические модули, база знаний по науке, программированию и математике приведены в полную готовность. Какую задачу решим сегодня?";
+        } else {
+            body.classList.remove('wednesday-mode');
+            title.innerText = "Ядро: Четверг (Огненный Напарник)";
+            welcome.innerText = "[Четверг]: Йоу, Сулейман! Четверг на месте! Никакой воды — только чёткий код, мощные ответы и полная поддержка. Го разваливать задачи! 🔥😎";
+        }
+    }
+
+    function startNewChat() { 
+        chatHistory = []; 
+        document.getElementById('memCountVal').innerText = `0 / 12`;
+        const mode = document.getElementById('modeSelect').value;
+        const av = mode === 'wednesday' ? 'С' : 'Ч';
+        const msg = mode === 'wednesday' 
+            ? "[Среда]: Контекстная память очищена. Готова к новому диалогу." 
+            : "[Четверг]: Память обнулили, чистое поле! Залетай с новой темой, бро! 🔥";
+        document.getElementById('chatMessages').innerHTML = `<div class="msg-row ai"><div class="avatar">${av}</div><div class="bubble-wrap"><div class="bubble">${msg}</div></div></div>`; 
+    }
+    
+    function clearHistory() { startNewChat(); }
+    function quickPrompt(text) { document.getElementById('userInput').value = text; sendMessage(); }
+
+    function formatBubbleContent(text) {
+        let safe = escapeHtml(text);
+        safe = safe.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+        return safe;
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const messages = document.getElementById('chatMessages');
+        const mode = document.getElementById('modeSelect').value;
+        const av = mode === 'wednesday' ? 'С' : 'Ч';
+        const text = input.value.trim();
+        if (!text) return;
+
+        messages.innerHTML += `<div class="msg-row user"><div class="avatar">Я</div><div class="bubble-wrap"><div class="bubble">${escapeHtml(text)}</div></div></div>`;
+        
+        chatHistory.push({ role: "user", content: text });
+        if (chatHistory.length > 12) chatHistory.shift();
+        document.getElementById('memCountVal').innerText = `${chatHistory.length} / 12`;
+
+        input.value = '';
+        messages.scrollTop = messages.scrollHeight;
+
+        const loadId = 'load-' + Date.now();
+        messages.innerHTML += `<div class="msg-row ai" id="${loadId}"><div class="avatar">${av}</div><div class="bubble-wrap"><div class="bubble">⚡ Генерирую ответ...</div></div></div>`;
+
+        const t0 = performance.now();
+        try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Berlin";
+            // Передаем чистый запрос и отдельный сжатый контекст, чтобы сервер никогда не путал старые слова про погоду с новым запросом!
+            const contextString = chatHistory.slice(-6).map(m => `${m.role === 'user' ? 'User' : 'AI'}: ${m.content}`).join(" | ");
+
+            const url = `${WORKER_URL}/?query=${encodeURIComponent(text)}&context=${encodeURIComponent(contextString)}&mode=${mode}&admin=true&tz=${encodeURIComponent(tz)}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            const ping = Math.round(performance.now() - t0);
+            document.getElementById('pingBadge').innerText = `Ping: ${ping}ms`;
+
+            if (data.devicesCount !== undefined) {
+                document.getElementById('devicesCountVal').innerText = data.devicesCount;
+            }
+
+            const replyText = data.response || "Ответ получен.";
+            chatHistory.push({ role: "assistant", content: replyText });
+            if (chatHistory.length > 12) chatHistory.shift();
+            document.getElementById('memCountVal').innerText = `${chatHistory.length} / 12`;
+
+            const loadEl = document.getElementById(loadId);
+            const safeAttr = JSON.stringify(replyText).replace(/"/g, '&quot;');
+            loadEl.outerHTML = `
+                <div class="msg-row ai">
+                    <div class="avatar">${av}</div>
+                    <div class="bubble-wrap">
+                        <div class="bubble">${formatBubbleContent(replyText)}</div>
+                        <div class="msg-actions">
+                            <button class="action-btn" onclick="speakText(${safeAttr})">🔊 Озвучить</button>
+                            <button class="action-btn" onclick="copyText(${safeAttr})">📋 Копировать</button>
+                        </div>
+                    </div>
+                </div>`;
+
+            if (autoVoice) speakText(replyText);
+        } catch (err) {
+            document.getElementById(loadId).outerHTML = `<div class="msg-row ai"><div class="avatar">${av}</div><div class="bubble-wrap"><div class="bubble">⚠️ Ошибка связи с сервером Cloudflare. Проверь деплой воркера!</div></div></div>`;
+        }
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+    }
+</script>
+
+</body>
+</html>
