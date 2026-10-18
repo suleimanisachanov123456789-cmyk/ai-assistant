@@ -1,4 +1,4 @@
-[18.10.2026 17:46] سليمان: <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
@@ -7,8 +7,8 @@
 <meta name="theme-color" content="#14110e">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <meta name="mobile-web-app-capable" content="yes">
@@ -16,365 +16,1053 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Среда и Четверг">
 <style>
-:root{color-scheme:dark;--bg:#0f0e0d;--side:#17140f;--card:#1d1a16;--line:#2e2820;--tx:#f4efe8;--mut:#a39a8d;--or:#ff8a1f;--grad:linear-gradient(135deg,#ffb04a,#ff6a00);--ok:#34d27b;--bad:#ff6161}
+:root{
+  color-scheme:dark;
+  --bg:#0f0e0d;
+  --side:#17140f;
+  --card:#1d1a16;
+  --line:#2e2820;
+  --tx:#f4efe8;
+  --mut:#a39a8d;
+  --or:#ff8a1f;
+  --grad:linear-gradient(135deg,#ffb04a,#ff6a00);
+  --ok:#34d27b;
+  --bad:#ff6161;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 html{height:100%}
 html,body{margin:0}
-body{height:var(--vh,100dvh);overscroll-behavior:none;-webkit-text-size-adjust:100%}
-body{background:radial-gradient(900px 500px at 15% -10%,#3a2209 0,transparent 60%),radial-gradient(700px 400px at 100% 110%,#2b1606 0,transparent 55%),var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:grid;grid-template-columns:290px 1fr;overflow:hidden}
-button,select,textarea{font:inherit;color:inherit}
+body{
+  height:var(--vh,100dvh);
+  overscroll-behavior:none;
+  -webkit-text-size-adjust:100%;
+  background:radial-gradient(900px 500px at 15% -10%,#3a2209 0,transparent 60%),radial-gradient(700px 400px at 100% 110%,#2b1606 0,transparent 55%),var(--bg);
+  color:var(--tx);
+  font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  display:grid;
+  grid-template-columns:300px 1fr;
+  overflow:hidden;
+}
+button,select,textarea,input{font:inherit;color:inherit}
+
 /* ── сайдбар ── */
-aside{background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;padding-top:env(safe-area-inset-top,0)}
-.brand{display:flex;align-items:center;gap:11px;padding:16px 14px 12px;border-bottom:2px solid var(--or)}
-.badge{width:42px;height:42px;border-radius:13px;background:var(--grad);color:#1a0d00;font-weight:900;font-size:22px;display:grid;place-items:center;box-shadow:0 4px 18px #ff8a1f55}
+aside{
+  background:var(--side);
+  border-right:1px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  padding-top:env(safe-area-inset-top,0);
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:16px 14px 12px;
+  border-bottom:2px solid var(--or);
+}
+.badge{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  background:var(--grad);
+  color:#1a0d00;
+  font-weight:900;
+  font-size:22px;
+  display:grid;
+  place-items:center;
+  box-shadow:0 4px 18px #ff8a1f55;
+  flex-shrink:0;
+}
 .brand h1{margin:0;font-size:18px;flex:1;line-height:1.15}
-.dev{border:1px solid var(--line);background:#0f0e0d;color:var(--ok);border-radius:10px;padding:3px 9px;font-size:13px;font-weight:700}
-.newb{margin:14px;border:0;border-radius:14px;padding:13px;background:var(--grad);color:#1a0d00;font-weight:800;font-size:17px;cursor:pointer;box-shadow:0 6px 22px #ff8a1f44;transition:transform .15s}
+.dev{
+  border:1px solid var(--line);
+  background:#0f0e0d;
+  color:var(--ok);
+  border-radius:10px;
+  padding:3px 9px;
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.newb{
+  margin:14px;
+  border:0;
+  border-radius:14px;
+  padding:13px;
+  background:var(--grad);
+  color:#1a0d00;
+  font-weight:800;
+  font-size:16px;
+  cursor:pointer;
+  box-shadow:0 6px 22px #ff8a1f44;
+  transition:transform .15s,filter .15s;
+}
+.newb:hover{filter:brightness(1.06)}
 .newb:active{transform:scale(.97)}
+#srch{
+  margin:0 14px 10px;
+  width:calc(100% - 28px);
+  background:#0f0e0d;
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:8px 11px;
+  color:var(--tx);
+  font-size:15px;
+  outline:none;
+}
+#srch:focus{border-color:var(--or)}
 #list{flex:1;overflow:auto;padding:0 10px}
-.it{display:flex;align-items:center;gap:6px;padding:9px 10px;border-radius:11px;cursor:pointer;color:var(--mut);font-size:15px}
+.it{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:9px 10px;
+  border-radius:11px;
+  cursor:pointer;
+  color:var(--mut);
+  font-size:15px;
+  margin-bottom:3px;
+}
 .it span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .it:hover{background:#221d16}
 .it.on{background:#2a2014;color:var(--tx);box-shadow:inset 3px 0 var(--or)}
-.it b{opacity:.5;cursor:pointer;padding:0 4px}.it b:hover{opacity:1;color:var(--bad)}
-.foot{padding:12px 14px calc(12px + env(safe-area-inset-bottom,0));border-top:1px solid var(--line)}
-.seg{display:flex;background:#0f0e0d;border:1px solid var(--line);border-radius:13px;padding:3px}
-.seg button{flex:1;background:none;border:0;border-radius:10px;padding:8px;color:var(--mut);cursor:pointer;font-weight:600}
+.it b{opacity:.5;cursor:pointer;padding:0 4px}
+.it b:hover{opacity:1;color:var(--bad)}
+.foot{
+  padding:12px 14px calc(12px + env(safe-area-inset-bottom,0));
+  border-top:1px solid var(--line);
+}
+.seg{
+  display:flex;
+  background:#0f0e0d;
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:3px;
+}
+.seg button{
+  flex:1;
+  background:none;
+  border:0;
+  border-radius:10px;
+  padding:8px;
+  color:var(--mut);
+  cursor:pointer;
+  font-weight:700;
+  transition:.15s;
+}
 .seg button.on{background:var(--grad);color:#1a0d00}
+.tools{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.tools button,.top .uib{
+  background:#0f0e0d;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:7px 10px;
+  cursor:pointer;
+  transition:.15s;
+}
+.tools button:hover,.top .uib:hover{border-color:var(--or)}
+.tools .uib{flex:1 1 100%;font-weight:700;color:var(--or)}
+
 /* ── основная часть ── */
-section{display:flex;flex-direction:column;min-width:0;min-height:0;padding-top:env(safe-area-inset-top,0)}
-.top{display:none;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:#14110e}
-.top button{background:none;border:1px solid var(--line);border-radius:10px;font-size:20px;padding:2px 11px;cursor:pointer}
-#msgs{flex:1;overflow:auto;padding:22px 16px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.wrap{max-width:800px;margin:0 auto}
-[18.10.2026 17:46] سليمان: .welcome{text-align:center;padding:7vh 0 0}
-.welcome img{width:96px;height:96px;border-radius:26px;box-shadow:0 10px 40px #ff8a1f55}
-.welcome h2{margin:18px 0 4px;font-size:28px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.welcome p{color:var(--mut);margin:0 0 22px}
-.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:center}
-.chips button{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:9px 16px;cursor:pointer;transition:.15s}
+section{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:0;
+  height:100%;
+  padding-top:env(safe-area-inset-top,0);
+}
+.top{
+  display:none;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-bottom:1px solid var(--line);
+  background:#14110e;
+}
+.top button{
+  background:none;
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-size:20px;
+  padding:2px 11px;
+  cursor:pointer;
+}
+.top .uib{margin-left:auto;font-size:13px;color:var(--or);font-weight:700;padding:6px 10px}
+#msgs{
+  flex:1;
+  overflow-y:auto;
+  padding:22px 18px;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.wrap{max-width:820px;margin:0 auto}
+
+/* ── приветствие ── */
+.welcome{text-align:center;padding:6vh 12px 0}
+.welcome-logo{
+  width:92px;
+  height:92px;
+  margin:0 auto;
+  border-radius:26px;
+  background:#181512;
+  border:1px solid var(--line);
+  box-shadow:0 10px 40px #ff8a1f44;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+.welcome-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.welcome-logo svg{width:64px;height:64px;filter:drop-shadow(0 0 10px #ff8a1f88)}
+.welcome h2{
+  margin:18px 0 6px;
+  font-size:30px;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.welcome p{color:var(--mut);margin:0 0 24px;font-size:16px}
+.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;max-width:680px;margin:0 auto}
+.chips button{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:10px 16px;
+  cursor:pointer;
+  transition:.15s;
+}
 .chips button:hover{border-color:var(--or);transform:translateY(-2px)}
-.msg{display:flex;gap:11px;margin:0 0 18px;animation:in .25s ease}
+
+/* ── сообщения ── */
+.msg{display:flex;gap:11px;margin:0 0 18px;animation:in .22s ease}
 @keyframes in{from{opacity:0;transform:translateY(8px)}}
-.av{flex:none;width:34px;height:34px;border-radius:11px;background:var(--grad);color:#1a0d00;font-weight:900;display:grid;place-items:center}
-.me{flex-direction:row-reverse}.me .av{background:#3a3228;color:var(--tx)}
-.bub{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 14px;max-width:calc(100% - 50px);overflow-wrap:anywhere}
+.av{
+  flex:none;
+  width:36px;
+  height:36px;
+  border-radius:11px;
+  background:var(--grad);
+  color:#1a0d00;
+  font-weight:900;
+  display:grid;
+  place-items:center;
+}
+.me{flex-direction:row-reverse}
+.me .av{background:#3a3228;color:var(--tx)}
+.bub{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:11px 15px;
+  max-width:calc(100% - 52px);
+  overflow-wrap:anywhere;
+}
 .me .bub{background:#2b2012;border-color:#5a3d17}
-.bub pre{background:#0b0a09;border:1px solid var(--line);border-radius:12px;padding:12px;overflow-x:auto;font-size:13px;margin:9px 0}
+.bub pre{
+  background:#0b0a09;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px;
+  overflow-x:auto;
+  font-size:13.5px;
+  margin:9px 0;
+}
 .bub code{background:#0b0a09;border-radius:6px;padding:1px 6px;font-size:.92em}
 .bub pre code{padding:0;background:none}
 .bub a{color:#ffb066}
-.bub img.pic{display:block;max-width:100%;border-radius:12px;border:1px solid var(--line);margin:4px 0}
+.bub img.pic{
+  display:block;
+  max-width:100%;
+  border-radius:12px;
+  border:1px solid var(--line);
+  margin:6px 0;
+}
 .info{color:var(--mut);font-size:13px;margin:6px 0}
 .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.acts button,.acts a{background:none;border:1px solid var(--line);border-radius:9px;color:var(--mut);padding:3px 10px;cursor:pointer;font-size:14px;text-decoration:none}
+.acts button,.acts a{
+  background:none;
+  border:1px solid var(--line);
+  border-radius:9px;
+  color:var(--mut);
+  padding:4px 10px;
+  cursor:pointer;
+  font-size:13.5px;
+  text-decoration:none;
+}
 .acts button:hover,.acts a:hover{border-color:var(--or);color:var(--tx)}
 .dots::after{content:"●●●";letter-spacing:3px;color:var(--or);animation:b 1s infinite}
 @keyframes b{50%{opacity:.2}}
 .err{color:var(--bad)}
-/* ── ввод ── */
-.comp{padding:8px 14px calc(14px + env(safe-area-inset-bottom,0))}
-.dbar{display:none;gap:8px;margin:0 auto 8px;max-width:800px}
+
+/* ── панель ввода ── */
+.comp{
+  padding:10px 16px calc(14px + env(safe-area-inset-bottom,0));
+  border-top:1px solid #1f1b16;
+  background:linear-gradient(180deg,transparent,#0f0e0d 40%);
+}
+.dbar{display:none;gap:8px;margin:0 auto 8px;max-width:820px}
 .dbar.on{display:flex}
-.dbar select{flex:1;min-width:0;font-size:16px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 8px}
-.box{display:flex;gap:8px;align-items:flex-end;max-width:800px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:8px;transition:.15s}
+.dbar select{
+  flex:1;
+  min-width:0;
+  font-size:15px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:7px 9px;
+}
+.box{
+  display:flex;
+  gap:8px;
+  align-items:flex-end;
+  max-width:820px;
+  margin:0 auto;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:8px;
+  transition:.15s;
+}
 .box:focus-within{border-color:var(--or);box-shadow:0 0 0 3px #ff8a1f22}
-.box textarea{flex:1;background:none;border:0;outline:0;resize:none;max-height:150px;padding:8px 6px}
-.ic{width:42px;height:42px;flex:none;border:0;border-radius:13px;background:#2a241c;font-size:19px;cursor:pointer}
-.ic.on{background:var(--grad)}
+.box textarea{
+  flex:1;
+  min-width:0;
+  background:none;
+  border:0;
+  outline:0;
+  resize:none;
+  max-height:150px;
+  padding:8px 6px;
+  line-height:1.45;
+}
+.ic{
+  width:42px;
+  height:42px;
+  flex:none;
+  border:0;
+  border-radius:13px;
+  background:#2a241c;
+  font-size:19px;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  transition:.15s;
+}
+.ic:hover{filter:brightness(1.1)}
+.ic.on{background:var(--grad);color:#1a0d00}
+.ic.on#mic{background:#e5484d;color:#fff}
 .snd{background:var(--grad);color:#1a0d00;font-weight:900;font-size:19px}
-.snd:disabled{opacity:.45}
+.snd:disabled{opacity:.45;cursor:not-allowed}
 .hint{text-align:center;color:var(--mut);font-size:12px;margin-top:7px}
 .ov{display:none}
 
-html.frame{background:#070605}
-html.frame body{width:390px;height:min(844px,calc(var(--vh,100dvh) - 36px));margin:18px auto;border:10px solid #050505;border-radius:46px;box-shadow:0 30px 90px #000,0 0 0 2px #2a2a2a;overflow:hidden;position:relative;transform:translateZ(0)}
-html.frame body::before{content:"";position:absolute;top:0;left:50%;width:120px;height:20px;transform:translateX(-50%);background:#050505;border-radius:0 0 16px 16px;z-index:60}
-#srch{margin:0 14px 8px;width:calc(100% - 28px);background:#0f0e0d;border:1px solid var(--line);border-radius:11px;padding:8px 11px;color:var(--tx);font-size:16px}
-.tools{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.tools button,.top .uib{background:#0f0e0d;border:1px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer}
-.tools button:hover,.top .uib:hover{border-color:var(--or)}
-[18.10.2026 17:46] سليمان: .tools .uib{flex:1 1 100%;font-weight:700;color:var(--or)}
-.top .uib{margin-left:auto;font-size:13px;color:var(--or)}
-.ic.on#mic{background:#e5484d}
-#toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:#000d;border:1px solid var(--or);padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:.3s;z-index:99;max-width:90%;text-align:center;font-size:14px}
+/* ── уведомления ── */
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:90px;
+  transform:translate(-50%,20px);
+  background:#14110eee;
+  border:1px solid var(--or);
+  padding:10px 16px;
+  border-radius:12px;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  z-index:99;
+  max-width:90%;
+  text-align:center;
+  font-size:14px;
+}
 #toast.on{opacity:1;transform:translate(-50%,0)}
-html.m{--m:1}
 
+/* ── рамка смартфона на ПК ── */
+html.frame{background:#070605}
+html.frame body{
+  width:400px;
+  height:min(850px,calc(var(--vh,100dvh) - 32px));
+  margin:16px auto;
+  border:10px solid #050505;
+  border-radius:44px;
+  box-shadow:0 30px 90px #000,0 0 0 2px #2a2a2a;
+  overflow:hidden;
+  position:relative;
+  transform:translateZ(0);
+}
+html.frame body::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:50%;
+  width:110px;
+  height:18px;
+  transform:translateX(-50%);
+  background:#050505;
+  border-radius:0 0 14px 14px;
+  z-index:60;
+}
+
+/* ── мобильный режим ── */
+html.m{--m:1}
 html.m body{grid-template-columns:1fr}
-html.m aside{position:fixed;inset:0 auto 0 0;width:285px;max-width:86vw;z-index:20;transform:translateX(-102%);transition:transform .25s}
+html.m aside{
+  position:fixed;
+  inset:0 auto 0 0;
+  width:285px;
+  max-width:86vw;
+  z-index:20;
+  transform:translateX(-102%);
+  transition:transform .25s ease;
+}
 html.m body.open aside{transform:none;box-shadow:0 0 60px #000}
 html.m body.open .ov{display:block;position:fixed;inset:0;background:#0008;z-index:10}
 html.m .top{display:flex}
 html.m #msgs{padding:14px 10px}
 html.m .bub{max-width:calc(100% - 46px);padding:9px 12px}
-html.m .av{width:30px;height:30px;border-radius:10px;font-size:14px}
+html.m .av{width:32px;height:32px;border-radius:10px;font-size:14px}
 html.m .msg{gap:8px;margin-bottom:14px}
-html.m .welcome{padding-top:3vh}.welcome img{width:76px;height:76px;border-radius:21px}.welcome h2{font-size:24px}
-html.m .chips button{padding:9px 13px;font-size:15px}
+html.m .welcome{padding-top:3vh}
+html.m .welcome-logo{width:78px;height:78px;border-radius:21px}
+html.m .welcome h2{font-size:24px}
+html.m .chips button{padding:9px 13px;font-size:14.5px}
 html.m .comp{padding:6px 10px calc(10px + env(safe-area-inset-bottom,0))}
 html.m .ic{width:44px;height:44px}
 html.m .hint{display:none}
-html.m .dbar{flex-wrap:wrap}.dbar select{flex:1 1 30%}
-html.m .acts button,.acts a{padding:7px 12px}
-}
+html.m .dbar{flex-wrap:wrap}
+html.m .dbar select{flex:1 1 30%}
+html.m .acts button,html.m .acts a{padding:7px 12px}
 </style>
 </head>
 <body>
 <aside>
-  <div class="brand"><div class="badge" id="bd">Ч</div><h1>Среда и Четверг</h1><span class="dev" id="dev">● …</span></div>
+  <div class="brand">
+    <div class="badge" id="bd">Ч</div>
+    <h1>Среда и Четверг</h1>
+    <span class="dev" id="dev" title="Активных устройств">● …</span>
+  </div>
   <button class="newb" id="newb">+ Новый диалог</button>
   <input id="srch" placeholder="🔍 Поиск по диалогам" autocomplete="off">
   <div id="list"></div>
-  <div class="foot"><div class="seg" id="modes"><button data-m="wednesday">Среда</button><button data-m="thursday">Четверг</button></div>
-    <div class="tools"><button class="uib"></button><button id="acc" title="Цвет темы">🎨</button><button id="fa" title="Шрифт меньше">A−</button><button id="fb" title="Шрифт больше">A+</button><button id="exp" title="Экспорт диалога">⬇ .txt</button><button id="inst" hidden>📲 Установить</button></div></div>
+  <div class="foot">
+    <div class="seg" id="modes">
+      <button type="button" data-m="wednesday">Среда</button>
+      <button type="button" data-m="thursday">Четверг</button>
+    </div>
+    <div class="tools">
+      <button type="button" class="uib"></button>
+      <button type="button" id="acc" title="Сменить цвет темы">🎨</button>
+      <button type="button" id="fa" title="Шрифт меньше">A−</button>
+      <button type="button" id="fb" title="Шрифт больше">A+</button>
+      <button type="button" id="exp" title="Скачать историю диалога">⬇ .txt</button>
+      <button type="button" id="inst" hidden>📲 Установить</button>
+    </div>
+  </div>
 </aside>
+
 <div class="ov" id="ov"></div>
 
 <section>
-  <div class="top"><button id="menu">☰</button><b id="ttl">Среда и Четверг</b><button class="uib"></button></div>
-  <div id="msgs"><div class="wrap" id="wrap"></div></div>
+  <div class="top">
+    <button type="button" id="menu" aria-label="Меню">☰</button>
+    <b id="ttl">Среда и Четверг</b>
+    <button type="button" class="uib"></button>
+  </div>
+  <div id="msgs">
+    <div class="wrap" id="wrap"></div>
+  </div>
   <div class="comp">
     <div class="dbar" id="dbar">
-      <select id="ss"><option value="auto">Стиль: авто</option><option value="photo">Фото</option><option value="art">Арт</option><option value="anime">Аниме</option><option value="3d">3D</option><option value="pixel">Пиксель-арт</option></select>
-      <select id="sa"><option value="auto">Формат: авто</option><option value="square">Квадрат</option><option value="landscape">Горизонт.</option><option value="portrait">Вертикаль</option><option value="wide">Панорама</option></select>
-      <select id="sq"><option value="hd">HD</option><option value="fast">Быстро</option></select>
+      <select id="ss">
+        <option value="auto">Стиль: авто</option>
+        <option value="photo">Фото</option>
+        <option value="art">Арт</option>
+        <option value="anime">Аниме</option>
+        <option value="3d">3D</option>
+        <option value="pixel">Пиксель-арт</option>
+      </select>
+      <select id="sa">
+        <option value="auto">Формат: авто</option>
+        <option value="square">Квадрат (1:1)</option>
+        <option value="landscape">Горизонт. (16:9)</option>
+        <option value="portrait">Вертикаль (9:16)</option>
+        <option value="wide">Панорама</option>
+      </select>
+      <select id="sq">
+        <option value="hd">Качество: HD</option>
+        <option value="fast">Быстро</option>
+      </select>
     </div>
     <form class="box" id="form">
       <button type="button" class="ic" id="drawT" title="Режим рисования (Суббота)">🎨</button>
       <button type="button" class="ic" id="mic" title="Голосовой ввод">🎤</button>
       <textarea id="q" rows="1" placeholder="Напиши сообщение… или «нарисуй дракона»"></textarea>
-      <button class="ic snd" id="snd">➤</button>
+      <button type="submit" class="ic snd" id="snd" title="Отправить">➤</button>
     </form>
     <div class="hint" id="hint">/помощь · Ctrl+K новый диалог · Alt+D рисовать · Alt+M режим ПК/телефон · ↑ вернуть сообщение</div>
   </div>
 </section>
 
 <div id="toast"></div>
+
 <script>
-// ▼▼▼ ВСТАВЬ АДРЕС СВОЕГО WORKER ▼▼▼
-const API = "https://YOUR-WORKER.workers.dev";
-// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+// ▼▼▼ АДРЕС ТВОЕГО CLOUDFLARE WORKER ▼▼▼
+const API = "https://raspy-rain-b35e.suleimanisachanov123456789.workers.dev";
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 const $ = (id) => document.getElementById(id);
-const ls = { get(k, d = "") { try { return localStorage.getItem(k) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
-[18.10.2026 17:46] سليمان: let uid = ls.get("uid");
-if (!/^[A-Za-z0-9_-]{8,64}$/.test(uid)) { uid = (crypto.randomUUID?.() || String(Math.random()).slice(2) + Date.now()).replace(/[^A-Za-z0-9]/g, "").slice(0, 32); ls.set("uid", uid); }
+const ls = {
+  get(k, d = "") { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+};
+
+let uid = ls.get("uid");
+if (!/^[A-Za-z0-9_-]{8,64}$/.test(uid)) {
+  uid = (crypto.randomUUID?.() || String(Math.random()).slice(2) + Date.now()).replace(/[^A-Za-z0-9]/g, "").slice(0, 32);
+  ls.set("uid", uid);
+}
+
 let mode = ls.get("mode", "thursday"), busy = false, drawOn = false, D = [], cur = null;
-try { D = JSON.parse(ls.get("dlgs", "[]")); } catch { D = []; }
+try { D = JSON.parse(ls.get("dlgs", "[]")); if (!Array.isArray(D)) D = []; } catch { D = []; }
 
 const isMobile = matchMedia("(max-width:780px), (pointer:coarse)").matches;
-const slowNet = !!(navigator.connection && (navigator.connection.saveData  /(^|-)(2g|3g)$/.test(navigator.connection.effectiveType  "")));
-function tfetch(url, opt, ms) { const c = new AbortController(), t = setTimeout(() => c.abort(), ms); return fetch(url, { ...opt, signal: c.signal }).finally(() => clearTimeout(t)); }
-function dataToBlob(u) { const [h, b] = u.split(","), mime = (h.match(/:(.*?);/)  [])[1]  "image/png", bin = atob(b), a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return new Blob([a], { type: mime }); }
+const slowNet = !!(navigator.connection && (navigator.connection.saveData || /(^|-)(2g|3g)$/.test(navigator.connection.effectiveType || "")));
 
-const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
-function md(src) {
-  return src.split(/`/).map((p, i) => i % 2
-    ? "<pre><code>" + esc(p.replace(/^[\w+#-]*\n/, "")) + "</code></pre>"
-    : esc(p).replace(/`([^`\n]+)`/g, "<code>$1</code>").replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>")
-        .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, "<br>")).join("");
+function tfetch(url, opt, ms) {
+  const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+  return fetch(url, { ...opt, signal: c.signal }).finally(() => clearTimeout(t));
 }
-const strip = (t) => t.replace(/^\s*\[(Четверг|Среда)\]:\s*/, "");
-const scroll = () => { $("msgs").scrollTop = $("msgs").scrollHeight; };
-function headers() { const h = { "Content-Type": "application/json" }, t = ls.get("admin"); if (t) h["X-Admin-Token"] = t; return h; }
+
+function dataToBlob(u) {
+  const [h, b] = u.split(",");
+  const mime = (h.match(/:(.*?);/) || [])[1] || "image/png";
+  const bin = atob(b), a = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+  return new Blob([a], { type: mime });
+}
+
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+function md(src) {
+  return String(src).split(/```/).map((p, i) => i % 2
+    ? "<pre><code>" + esc(p.replace(/^[\w+#-]*\n/, "")) + "</code></pre>"
+    : esc(p)
+        .replace(/!\[([^\]]*)\]\((data:image\/[^)]+\vert{}https?:\/\/[^)]+)\)/g, '<img class="pic" src="$2" alt="$1">')
+        .replace(/`([^`\n]+)`/g, "<code>$1</code>")
+        .replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>")
+        .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+        .replace(/\n/g, "<br>")
+  ).join("");
+}
+
+const strip = (t) => String(t).replace(/^\s*\[(Четверг\vert{}Среда\vert{}Суббота)\]:\s*/i, "");
+const scroll = () => { const m = $("msgs"); if (m) m.scrollTop = m.scrollHeight; };
+
+function headers() {
+  const h = { "Content-Type": "application/json" };
+  const t = ls.get("admin");
+  if (t) h["X-Admin-Token"] = t;
+  return h;
+}
+
+/* ── Иконка меча Зульфикар (SVG-запасной вариант для логотипа) ── */
+const ZULFIQAR_SVG = `<svg viewBox="0 0 100 100" fill="none" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
+  <path d="M18 22 C36 24, 58 42, 73 64 L67 70 C50 48, 30 33, 12 28 L25 26 L18 22 Z" fill="url(#zg)" stroke="#ffb04a" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M62 74 C67 69, 73 63, 78 58" stroke="#ff8a1f" stroke-width="5" stroke-linecap="round"/>
+  <path d="M72 68 L84 80" stroke="#ff8a1f" stroke-width="6" stroke-linecap="round"/>
+  <defs><linearGradient id="zg" x1="12" y1="22" x2="84" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#ffb04a"/><stop offset="1" stop-color="#ff6a00"/></linearGradient></defs>
+</svg>`;
 
 /* ── диалоги ── */
 function save() {
-  ls.set("dlgs", JSON.stringify(D.slice(0, 30).map((d) => ({ id: d.id, title: d.title, msgs: d.msgs.map((m) => ({ role: m.role, content: m.content, img: m.src || m.img ? 1 : undefined, who: m.who })) }))));
+  ls.set("dlgs", JSON.stringify(D.slice(0, 30).map((d) => ({
+    id: d.id,
+    title: d.title,
+    msgs: d.msgs.map((m) => ({
+      role: m.role,
+      content: m.content,
+      img: m.src || m.img ? 1 : undefined,
+      who: m.who
+    }))
+  }))));
 }
+
 function renderList() {
   const l = $("list"); l.innerHTML = "";
   const fq = $("srch").value.toLowerCase();
-  D.filter((d) => d.title.toLowerCase().includes(fq)).forEach((d) => {
-    const e = document.createElement("div"); e.className = "it" + (d === cur ? " on" : "");
-    e.innerHTML = "<span></span><b title='Удалить'>×</b>"; e.firstChild.textContent = "💬 " + d.title;
+  D.filter((d) => (d.title || "").toLowerCase().includes(fq)).forEach((d) => {
+    const e = document.createElement("div");
+    e.className = "it" + (d === cur ? " on" : "");
+    e.innerHTML = "<span></span><b title='Удалить'>×</b>";
+    e.firstChild.textContent = "💬 " + d.title;
     e.onclick = (ev) => {
-      if (ev.target.tagName === "B") { D = D.filter((x) => x !== d); if (cur === d) cur = null; save(); renderList(); renderMsgs(); return; }
-      cur = d; renderList(); renderMsgs(); document.body.classList.remove("open");
+      if (ev.target.tagName === "B") {
+        D = D.filter((x) => x !== d);
+        if (cur === d) cur = null;
+        save(); renderList(); renderMsgs();
+        return;
+      }
+      cur = d; renderList(); renderMsgs();
+      document.body.classList.remove("open");
     };
     l.appendChild(e);
   });
 }
+
 function renderMsgs() {
   const w = $("wrap"); w.innerHTML = "";
   if (!cur || !cur.msgs.length) {
-    w.innerHTML = '<div class="welcome"><img src="icon-512.png" alt="" onerror="this.remove()"><h2>Среда и Четверг</h2><p>Спрашивай, шути, пиши код — а Суббота нарисует что угодно.</p><div class="chips"></div></div>';
-    [["😄 Шутка", "/шутка"], ["🎨 Нарисуй дракона", "нарисуй дракона над ночным городом"], ["🌦 Погода", "какая погода?"], ["💻 Помоги с кодом", "Напиши функцию на JavaScript, которая переворачивает строку"], ["📚 Кто такой Эйнштейн", "Кто такой Эйнштейн?"]].forEach(([t, q]) => {
-      const b = document.createElement("button"); b.textContent = t; b.onclick = () => go(q); w.querySelector(".chips").appendChild(b);
+    w.innerHTML = `
+      <div class="welcome">
+        <div class="welcome-logo">
+          <img src="apple-touch-icon.png" alt="Логотип" onerror="this.outerHTML=ZULFIQAR_SVG">
+        </div>
+        <h2>Среда и Четверг</h2>
+        <p>Спрашивай, шути, пиши код — а Суббота нарисует что угодно.</p>
+        <div class="chips"></div>
+      </div>`;
+    [
+      ["😄 Шутка", "/шутка"],
+      ["🎨 Нарисуй меч Зульфикар", "нарисуй легендарный меч Зульфикар в неоновом стиле"],
+      ["🌦 Погода", "какая погода?"],
+      ["💻 Помоги с кодом", "Напиши функцию на JavaScript, которая переворачивает строку"],
+      ["📚 Кто такой Эйнштейн", "Кто такой Эйнштейн?"]
+    ].forEach(([t, q]) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = t;
+      b.onclick = () => go(q);
+      w.querySelector(".chips").appendChild(b);
     });
-  } else cur.msgs.forEach((m) => { const b = bubble(m.role, m.who); fill(b, m); });
+  } else {
+    cur.msgs.forEach((m) => {
+      const b = bubble(m.role, m.who);
+      fill(b, m);
+    });
+  }
   scroll();
 }
-function newDialog() { cur = null; renderList(); renderMsgs(); document.body.classList.remove("open"); $("q").focus(); }
+
+function newDialog() {
+  cur = null;
+  renderList();
+  renderMsgs();
+  document.body.classList.remove("open");
+  $("q").focus();
+}
+
 function ensure(first) {
-  if (!cur) { cur = { id: Date.now(), title: first.slice(0, 34) || "Новый диалог", msgs: [] }; D.unshift(cur); renderList(); $("wrap").innerHTML = ""; }
+  if (!cur) {
+    cur = { id: Date.now(), title: first.slice(0, 34) || "Новый диалог", msgs: [] };
+    D.unshift(cur);
+    renderList();
+    $("wrap").innerHTML = "";
+  }
 }
-[18.10.2026 17:46] سليمان: /* ── пузыри ── */
+
+/* ── пузыри сообщений ── */
 function bubble(role, who) {
-  const d = document.createElement("div"); d.className = "msg " + (role === "user" ? "me" : "bot");
+  const d = document.createElement("div");
+  d.className = "msg " + (role === "user" ? "me" : "bot");
   const ic = role === "user" ? "Я" : who === "sat" ? "🎨" : (who || mode) === "wednesday" ? "С" : "Ч";
-  d.innerHTML = '<div class="av"></div><div class="bub"></div>'; d.firstChild.textContent = ic;
-  $("wrap").appendChild(d); scroll(); return d.lastChild;
+  d.innerHTML = '<div class="av"></div><div class="bub"></div>';
+  d.firstChild.textContent = ic;
+  $("wrap").appendChild(d);
+  scroll();
+  return d.lastChild;
 }
+
 function fill(b, m) {
   if (m.src) { b.innerHTML = ""; showImg(b, m); }
-  else if (m.img) b.innerHTML = md(m.content || "") + "<div class='info'>🖼 Картинка не сохраняется после перезагрузки.</div>";
-  else b.innerHTML = md(m.content);
+  else if (m.img) b.innerHTML = md(m.content || "") + "<div class='info'>🖼 Картинка не сохраняется после перезагрузки страницы.</div>";
+  else b.innerHTML = md(m.content || "");
 }
+
 function actions(b, q, a) {
-  const x = document.createElement("div"); x.className = "acts";
-  x.innerHTML = '<button data-r="1">👍</button><button data-r="-1">👎</button><button data-c="1">📋 Копировать</button><button data-s="1">🔊</button><button data-g="1">🔁</button>';
+  const x = document.createElement("div");
+  x.className = "acts";
+  x.innerHTML = '<button type="button" data-r="1">👍</button><button type="button" data-r="-1">👎</button><button type="button" data-c="1">📋 Копировать</button><button type="button" data-s="1">🔊</button><button type="button" data-g="1">🔁</button>';
   x.onclick = async (e) => {
-    const t = e.target.closest("button"); if (!t) return;
-    if (t.dataset.s) { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(a); u.lang = "ru-RU"; speechSynthesis.speak(u); return; }
+    const t = e.target.closest("button");
+    if (!t) return;
+    if (t.dataset.s) {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(a);
+      u.lang = "ru-RU";
+      speechSynthesis.speak(u);
+      return;
+    }
     if (t.dataset.g) { go(q); return; }
-    if (t.dataset.c) { try { await navigator.clipboard.writeText(a); t.textContent = "✓ Скопировано"; } catch {} return; }
-    try { await fetch(API + "/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rating: Number(t.dataset.r), query: q, answer: a }) }); x.innerHTML = "<span class='info'>Спасибо за оценку!</span>"; } catch {}
+    if (t.dataset.c) {
+      try { await navigator.clipboard.writeText(a); t.textContent = "✓ Скопировано"; } catch {}
+      return;
+    }
+    try {
+      await fetch(API + "/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: Number(t.dataset.r), query: q, answer: a })
+      });
+      x.innerHTML = "<span class='info'>Спасибо за оценку!</span>";
+    } catch {}
   };
   b.appendChild(x);
 }
 
 /* ── чат (стриминг) ── */
 async function chatSend(text) {
-  const hist = cur.msgs.filter((m) => !m.src && !m.img).slice(-12).map((m) => ({ role: m.role, content: m.content.slice(0, 600) }));
+  const hist = cur.msgs.filter((m) => !m.src && !m.img).slice(-12).map((m) => ({ role: m.role, content: String(m.content || "").slice(0, 600) }));
   cur.msgs.push({ role: "user", content: text });
   const ub = bubble("user"); ub.innerHTML = md(text);
   const b = bubble("assistant"); b.innerHTML = '<span class="dots"></span>';
   let full = "";
   try {
-    const r = await tfetch(API + "/", { method: "POST", headers: headers(), body: JSON.stringify({ query: text, mode, history: hist, stream: true, uid, mobile: isMobile, tz: Intl.DateTimeFormat().resolvedOptions().timeZone }) }, 60000);
+    const r = await tfetch(API + "/", {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({
+        query: text,
+        mode,
+        history: hist,
+        stream: true,
+        uid,
+        mobile: isMobile,
+        tz: Intl.DateTimeFormat().resolvedOptions().timeZone
+      })
+    }, 60000);
+
     if ((r.headers.get("content-type") || "").includes("text/event-stream")) {
-      const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
+      const rd = r.body.getReader(), dec = new TextDecoder();
+      let buf = "";
       for (;;) {
-        const { done, value } = await rd.read(); if (done) break;
-        buf += dec.decode(value, { stream: true }); let i;
+        const { done, value } = await rd.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i;
         while ((i = buf.indexOf("\n\n")) >= 0) {
-          const ev = buf.slice(0, i).trim(); buf = buf.slice(i + 2);
-          if (!ev.startsWith("data:")) continue; const p = ev.slice(5).trim(); if (p === "[DONE]") continue;
-          try { const o = JSON.parse(p); if (typeof o.response === "string") { full += o.response; b.innerHTML = md(strip(full)); scroll(); } } catch {}
+          const ev = buf.slice(0, i).trim();
+          buf = buf.slice(i + 2);
+          if (!ev.startsWith("data:")) continue;
+          const p = ev.slice(5).trim();
+          if (p === "[DONE]") continue;
+          try {
+            const o = JSON.parse(p);
+            if (typeof o.response === "string") {
+              full += o.response;
+              b.innerHTML = md(strip(full));
+              scroll();
+            }
+          } catch {}
         }
       }
-    } else { const j = await r.json(); full = j.response || ""; if (j.devicesCount) $("dev").textContent = "● " + j.devicesCount; }
+    } else {
+      const j = await r.json();
+      full = j.response || "";
+      if (j.devicesCount) $("dev").textContent = "● " + j.devicesCount;
+    }
     full = strip(full) || "Не получилось получить ответ.";
-    b.innerHTML = md(full); actions(b, text, full);
+    b.innerHTML = md(full);
+    actions(b, text, full);
     cur.msgs.push({ role: "assistant", content: full, who: mode });
-  } catch (e) { b.innerHTML = '<span class="err">' + (e.name === "AbortError" ? "Сервер долго не отвечает. Проверь интернет и повтори." : "Нет связи с сервером. Проверь интернет и адрес API в index.html.") + "</span>"; cur.msgs.push({ role: "assistant", content: "Ошибка связи.", who: mode }); }
+  } catch (e) {
+    b.innerHTML = '<span class="err">' + (e.name === "AbortError" ? "Сервер долго не отвечает. Проверь интернет и повтори." : "Нет связи с сервером. Проверь интернет и адрес API.") + "</span>";
+    cur.msgs.push({ role: "assistant", content: "Ошибка связи.", who: mode });
+  }
 }
 
-/* ── Суббота: картинка прямо в чате ── */
+/* ── Суббота: генерация картинок прямо в чате ── */
 function showImg(b, m) {
-  const mime = m.blob?.type  (m.src.match(/^data:([^;]+)/)  [])[1] || "image/jpeg", ext = mime.split("/")[1].replace("jpeg", "jpg");
-  const im = document.createElement("img"); im.className = "pic"; im.alt = m.content || "Суббота"; im.decoding = "async"; im.src = m.src;
-[18.10.2026 17:46] سليمان: const info = document.createElement("div"); info.className = "info"; info.textContent = m.info || "";
-  const x = document.createElement("div"); x.className = "acts";
-  x.innerHTML = "<button>⬇ Сохранить</button><button>🔄 Ещё вариант</button>";
+  const mime = m.blob?.type || (m.src.match(/^data:([^;]+)/) || [])[1] || "image/jpeg";
+  const ext = mime.split("/")[1].replace("jpeg", "jpg");
+  const im = document.createElement("img");
+  im.className = "pic";
+  im.alt = m.content || "Суббота";
+  im.decoding = "async";
+  im.src = m.src;
+
+  const info = document.createElement("div");
+  info.className = "info";
+  info.textContent = m.info || "";
+
+  const x = document.createElement("div");
+  x.className = "acts";
+  x.innerHTML = '<button type="button">⬇ Сохранить</button><button type="button">🔄 Ещё вариант</button>';
   x.firstChild.onclick = async () => {
     try {
-      const blob = m.blob || await (await fetch(m.src)).blob(), f = new File([blob], "subbota." + ext, { type: mime });
-      if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: "Суббота" }); return; }
+      const blob = m.blob || await (await fetch(m.src)).blob();
+      const f = new File([blob], "subbota." + ext, { type: mime });
+      if (navigator.canShare && navigator.canShare({ files: [f] })) {
+        await navigator.share({ files: [f], title: "Суббота" });
+        return;
+      }
     } catch (e) { if (e && e.name === "AbortError") return; }
-    const a = document.createElement("a"); a.href = m.src; a.download = "subbota." + ext; document.body.appendChild(a); a.click(); a.remove();
-    info.textContent = (m.info || "") + " · Не сохранилось? Зажми картинку пальцем.";
+    const a = document.createElement("a");
+    a.href = m.src;
+    a.download = "subbota." + ext;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    info.textContent = (m.info || "") + " · Если не сохранилось, зажми картинку пальцем.";
   };
-  x.lastChild.onclick = () => go("нарисуй " + (m.prompt  m.content  ""));
+  x.lastChild.onclick = () => go("нарисуй " + (m.prompt || m.content || ""));
   im.onerror = () => { info.textContent = "⚠ Браузер не смог показать картинку — повтори или выбери качество «Быстро»."; };
   b.append(im, info, x);
 }
+
 async function drawSend(prompt, shown) {
   cur.msgs.push({ role: "user", content: shown });
   const ub = bubble("user"); ub.textContent = shown;
-  const b = bubble("assistant", "sat"); const t0 = Date.now();
-  const tick = () => { b.innerHTML = '<span class="dots"></span> <span class="info">Суббота рисует… ' + Math.round((Date.now() - t0) / 1000) + " с (HD — до минуты)</span>"; }; tick();
+  const b = bubble("assistant", "sat");
+  const t0 = Date.now();
+  const tick = () => {
+    b.innerHTML = '<span class="dots"></span> <span class="info">Суббота рисует… ' + Math.round((Date.now() - t0) / 1000) + " с (HD — до минуты)</span>";
+  };
+  tick();
   const timer = setInterval(tick, 1000);
   try {
-    const r = await tfetch(API + "/saturday", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt, style: $("ss").value, aspect: $("sa").value, quality: $("sq").value, mobile: isMobile }) }, 150000);
-    let j; try { j = await r.json(); } catch { throw new Error("Сервер ответил HTTP " + r.status + ". Проверь адрес API и что в Worker стоит версия v1100 с маршрутом /saturday."); }
+    const r = await tfetch(API + "/saturday", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt,
+        style: $("ss").value,
+        aspect: $("sa").value,
+        quality: $("sq").value,
+        mobile: isMobile
+      })
+    }, 150000);
+
+    let j;
+    try { j = await r.json(); } catch {
+      throw new Error("Сервер ответил HTTP " + r.status + ". Проверь, что в Worker загружен код v1100 с маршрутом /saturday.");
+    }
     if (!j.ok) throw new Error(j.error || "Ошибка " + r.status);
-    const blob = dataToBlob(j.image); const m = { role: "assistant", who: "sat", content: "🎨 " + prompt, prompt, blob, src: URL.createObjectURL(blob), info: ${j.width}×${j.height} · ${j.model.split("/").pop()} · seed ${j.seed} · ${(j.ms / 1000).toFixed(1)} с };
-    cur.msgs.push(m); b.innerHTML = ""; showImg(b, m);
-  } catch (e) { b.innerHTML = ""; const s = document.createElement("span"); s.className = "err"; s.textContent = e.name === "AbortError" ? "Картинка рисуется слишком долго. Выбери качество «Быстро» и повтори." : /fetch|Load failed|NetworkError/i.test(e.message  "") ? "Нет связи с Worker: проверь адрес API в index.html и переменную ALLOWED_ORIGIN." : (e.message  "Не получилось нарисовать."); b.appendChild(s); cur.msgs.push({ role: "assistant", who: "sat", content: "Ошибка: " + (e.message || "") }); }
-  finally { clearInterval(timer); }
+    const blob = dataToBlob(j.image);
+    const m = {
+      role: "assistant",
+      who: "sat",
+      content: "🎨 " + prompt,
+      prompt,
+      blob,
+      src: URL.createObjectURL(blob),
+      info: `${j.width}×${j.height} · ${(j.model || "").split("/").pop()} · seed ${j.seed} · ${(j.ms / 1000).toFixed(1)} с`
+    };
+    cur.msgs.push(m);
+    b.innerHTML = "";
+    showImg(b, m);
+  } catch (e) {
+    b.innerHTML = "";
+    const s = document.createElement("span");
+    s.className = "err";
+    s.textContent = e.name === "AbortError"
+      ? "Картинка рисуется слишком долго. Выбери качество «Быстро» и повтори."
+      : /fetch|Load failed|NetworkError/i.test(e.message || "")
+        ? "Нет связи с Worker: проверь интернет и адрес API."
+        : (e.message || "Не получилось нарисовать.");
+    b.appendChild(s);
+    cur.msgs.push({ role: "assistant", who: "sat", content: "Ошибка: " + (e.message || "") });
+  } finally {
+    clearInterval(timer);
+  }
 }
-const DRAW_RE = /^(?:\/нарисуй|нарисуй|\/суббота|(?:сгенерируй|создай|сделай)(?:\s+мне)?\s+(?:картинк\S*|фото|изображени\S*|арт))\s*([\s\S]*)$/i;
+
+const DRAW_RE = /^(?:\/нарисуй|нарисуй|\/суббота|(?:сгенерируй|создай|сделай)(?:\s+мне)?\s+(?:картинк\S*|фото\S*|изображени\S*|арт))\s*([\s\S]*)$/i;
 
 async function go(text) {
-  text = text.trim(); if (busy || !text) return;
+  text = String(text || "").trim();
+  if (busy || !text) return;
   const tk = text.match(/^\/токен\s+(\S+)$/i);
-  if (tk) { ls.set("admin", tk[1]); ensure("Админ"); const b = bubble("assistant"); b.textContent = "Токен сохранён в этом браузере. Проверь командой /admin."; return; }
-  busy = true; $("snd").disabled = true; navigator.vibrate?.(8);
+  if (tk) {
+    ls.set("admin", tk[1]);
+    ensure("Админ");
+    const b = bubble("assistant");
+    b.textContent = "Токен администратора сохранён в браузере ✅ Проверь командой /admin.";
+    return;
+  }
+  busy = true;
+  $("snd").disabled = true;
+  navigator.vibrate?.(8);
   ensure(text);
   const dm = text.match(DRAW_RE);
   try {
-    if (drawOn  dm) await drawSend(drawOn ? text : (dm[1].trim()  text), text); else await chatSend(text);
-  } finally { busy = false; $("snd").disabled = false; save(); renderList(); scroll(); }
+    if (drawOn || dm) {
+      const p = drawOn ? text : (dm[1].trim() || text);
+      await drawSend(p, text);
+    } else {
+      await chatSend(text);
+    }
+  } finally {
+    busy = false;
+    $("snd").disabled = false;
+    save();
+    renderList();
+    scroll();
+  }
 }
 
 /* ── управление ── */
-$("form").onsubmit = (e) => { e.preventDefault(); const v = $("q").value; $("q").value = ""; $("q").style.height = "auto"; go(v); };
-[18.10.2026 17:46] سليمان: $("q").onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey && !/Mobi|Android/i.test(navigator.userAgent)) { e.preventDefault(); $("form").requestSubmit(); } };
-$("q").oninput = (e) => { e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 150) + "px"; };
+$("form").onsubmit = (e) => {
+  e.preventDefault();
+  const v = $("q").value;
+  $("q").value = "";
+  $("q").style.height = "auto";
+  go(v);
+};
+$("q").onkeydown = (e) => {
+  if (e.key === "Enter" && !e.shiftKey && !/Mobi|Android/i.test(navigator.userAgent)) {
+    e.preventDefault();
+    $("form").requestSubmit();
+  }
+};
+$("q").oninput = (e) => {
+  e.target.style.height = "auto";
+  e.target.style.height = Math.min(e.target.scrollHeight, 150) + "px";
+};
 $("newb").onclick = newDialog;
 $("menu").onclick = () => document.body.classList.add("open");
 $("ov").onclick = () => document.body.classList.remove("open");
 $("drawT").onclick = () => {
-  drawOn = !drawOn; $("drawT").classList.toggle("on", drawOn); $("dbar").classList.toggle("on", drawOn);
-  $("q").placeholder = drawOn ? "Опиши картинку: «рыжий дракон над ночным городом»…" : "Напиши сообщение… или «нарисуй дракона»";
-  $("hint").textContent = drawOn ? "Режим Субботы: каждое сообщение превращается в картинку" : "/помощь — все команды · 🎨 — Суббота рисует картинки";
+  drawOn = !drawOn;
+  $("drawT").classList.toggle("on", drawOn);
+  $("dbar").classList.toggle("on", drawOn);
+  $("q").placeholder = drawOn
+    ? "Опиши картинку: «кибернетический меч Зульфикар»…"
+    : "Напиши сообщение… или «нарисуй дракона»";
+  $("hint").textContent = drawOn
+    ? "Режим Субботы: каждое сообщение превращается в картинку 🎨"
+    : "/помощь — все команды · 🎨 — Суббота рисует картинки · Alt+M — режим ПК/телефон";
 };
+
 function setMode(m) {
-  mode = m; ls.set("mode", m); $("bd").textContent = m === "wednesday" ? "С" : "Ч";
+  mode = m;
+  ls.set("mode", m);
+  $("bd").textContent = m === "wednesday" ? "С" : "Ч";
   document.querySelectorAll("#modes button").forEach((b) => b.classList.toggle("on", b.dataset.m === m));
 }
-$("modes").onclick = (e) => { const b = e.target.closest("button"); if (b) setMode(b.dataset.m); };
+$("modes").onclick = (e) => {
+  const b = e.target.closest("button");
+  if (b) setMode(b.dataset.m);
+};
+
 async function ping() {
-  try { const r = await fetch(API + "/", { method: "POST", headers: headers(), body: JSON.stringify({ query: "", uid }) }); const j = await r.json(); if (j.devicesCount) $("dev").textContent = "● " + j.devicesCount; }
-  catch { $("dev").textContent = "● офлайн"; }
+  try {
+    const r = await fetch(API + "/", {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({ query: "", uid })
+    });
+    const j = await r.json();
+    if (j.devicesCount) $("dev").textContent = "● " + j.devicesCount;
+    else $("dev").textContent = "● онлайн";
+  } catch {
+    $("dev").textContent = "● офлайн";
+  }
 }
 
 // клавиатура на телефоне: подгоняем высоту под видимую область
-if (window.visualViewport) { const f = () => { document.documentElement.style.setProperty("--vh", visualViewport.height + "px"); window.scrollTo(0, 0); scroll(); }; visualViewport.addEventListener("resize", f); f(); }
+if (window.visualViewport) {
+  const f = () => {
+    document.documentElement.style.setProperty("--vh", visualViewport.height + "px");
+    window.scrollTo(0, 0);
+    scroll();
+  };
+  visualViewport.addEventListener("resize", f);
+  f();
+}
 
-/* ───── ПК ⇄ ТЕЛЕФОН (одна страница, диалоги и аккаунт не теряются: перезагрузки нет) ───── */
+/* ───── ПК ⇄ ТЕЛЕФОН (переключение на лету без перезагрузки) ───── */
 let ui = ls.get("ui", "auto"); // auto | pc | mobile
 const phone = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent);
 const layout = () => ui === "mobile" ? "m" : ui === "pc" ? "pc" : innerWidth <= 780 ? "m" : "pc";
-function toast(t) { const d = $("toast"); d.textContent = t; d.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => d.classList.remove("on"), 6000); }
+
+function toast(t) {
+  const d = $("toast");
+  d.textContent = t;
+  d.classList.add("on");
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => d.classList.remove("on"), 5000);
+}
+
 function applyUI() {
   const L = layout(), h = document.documentElement;
-  h.classList.toggle("m", L === "m"); h.classList.toggle("frame", L === "m" && ui === "mobile" && !phone);
-  document.querySelector("meta[name=viewport]").content = ui === "pc" && phone ? "width=1100" : "width=device-width, initial-scale=1, viewport-fit=cover";
-  document.querySelectorAll(".uib").forEach((b) => { b.textContent = L === "m" ? "🖥 Версия для ПК" : "📱 Мобильная версия"; });
+  h.classList.toggle("m", L === "m");
+  h.classList.toggle("frame", L === "m" && ui === "mobile" && !phone);
+  document.querySelector("meta[name=viewport]").content = ui === "pc" && phone
+    ? "width=1100"
+    : "width=device-width, initial-scale=1, viewport-fit=cover";
+  document.querySelectorAll(".uib").forEach((b) => {
+    b.textContent = L === "m" ? "🖥 Версия для ПК" : "📱 Мобильная версия";
+  });
   if (L !== "m") document.body.classList.remove("open");
 }
+
 function toggleUI() {
-  ui = layout() === "m" ? "pc" : "mobile"; ls.set("ui", ui); applyUI();
-  if (ui === "pc" && phone) toast("Режим ПК включён. Для лучшего вида включи в браузере «Версия для ПК» (меню ⋮ → Версия для ПК). Вернуться — кнопка «📱 Мобильная версия».");
-  else if (ui === "mobile" && !phone) toast("Мобильная версия в рамке телефона. Диалоги сохранены.");
+  ui = layout() === "m" ? "pc" : "mobile";
+  ls.set("ui", ui);
+  applyUI();
+  if (ui === "pc" && phone) toast("Включён режим ПК 💻 Вернуться — кнопка «📱 Мобильная версия».");
+  else if (ui === "mobile" && !phone) toast("Мобильная версия в рамке смартфона 📱 Все диалоги на месте.");
 }
+
 document.querySelectorAll(".uib").forEach((b) => (b.onclick = toggleUI));
 addEventListener("resize", () => { if (ui === "auto") applyUI(); });
 applyUI();
 
-/* ───── фишки ───── */
+/* ───── дополнительные фишки ───── */
 $("srch").oninput = renderList;
-const ACC = [["#ff8a1f", "#ffb04a", "#ff6a00"], ["#3b9cff", "#6cc0ff", "#1f6bff"], ["#34d27b", "#6ff0a8", "#15a85a"], ["#b46bff", "#d3a4ff", "#8a3dff"]];
-function accent(i) { const [a, b, c] = ACC[i % ACC.length], st = document.documentElement.style; st.setProperty("--or", a); st.setProperty("--grad", linear-gradient(135deg,${b},${c})); ls.set("acc", i % ACC.length); }
-accent(Number(ls.get("acc", 0))); $("acc").onclick = () => accent(Number(ls.get("acc", 0)) + 1);
-[18.10.2026 17:46] سليمان: let fs = Number(ls.get("fs", 16)); const setFs = (d) => { fs = Math.min(22, Math.max(13, fs + d)); document.body.style.fontSize = fs + "px"; ls.set("fs", fs); };
-setFs(0); $("fa").onclick = () => setFs(-1); $("fb").onclick = () => setFs(1);
+const ACC = [
+  ["#ff8a1f", "#ffb04a", "#ff6a00"],
+  ["#3b9cff", "#6cc0ff", "#1f6bff"],
+  ["#34d27b", "#6ff0a8", "#15a85a"],
+  ["#b46bff", "#d3a4ff", "#8a3dff"]
+];
+function accent(i) {
+  const [a, b, c] = ACC[i % ACC.length], st = document.documentElement.style;
+  st.setProperty("--or", a);
+  st.setProperty("--grad", `linear-gradient(135deg,${b},${c})`);
+  ls.set("acc", i % ACC.length);
+}
+accent(Number(ls.get("acc", 0)));
+$("acc").onclick = () => accent(Number(ls.get("acc", 0)) + 1);
+
+let fs = Number(ls.get("fs", 16));
+const setFs = (d) => {
+  fs = Math.min(22, Math.max(13, fs + d));
+  document.body.style.fontSize = fs + "px";
+  ls.set("fs", fs);
+};
+setFs(0);
+$("fa").onclick = () => setFs(-1);
+$("fb").onclick = () => setFs(1);
+
 $("exp").onclick = () => {
   if (!cur || !cur.msgs.length) return toast("Нечего экспортировать — диалог пуст.");
   const t = cur.msgs.map((m) => (m.role === "user" ? "Я: " : "ИИ: ") + (m.content || "")).join("\n\n");
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([t], { type: "text/plain" })); a.download = "dialog.txt"; a.click();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([t], { type: "text/plain" }));
+  a.download = "dialog.txt";
+  a.click();
 };
+
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!SR) $("mic").style.display = "none"; else {
-  const rec = new SR(); rec.lang = "ru-RU"; let on = false;
-  rec.onresult = (e) => { $("q").value += ($("q").value ? " " : "") + e.results[0][0].transcript; $("q").dispatchEvent(new Event("input")); };
+if (!SR) {
+  $("mic").style.display = "none";
+} else {
+  const rec = new SR();
+  rec.lang = "ru-RU";
+  let on = false;
+  rec.onresult = (e) => {
+    $("q").value += ($("q").value ? " " : "") + e.results[0][0].transcript;
+    $("q").dispatchEvent(new Event("input"));
+  };
   rec.onend = () => { on = false; $("mic").classList.remove("on"); };
-  $("mic").onclick = () => { if (on) return rec.stop(); try { rec.start(); on = true; $("mic").classList.add("on"); } catch {} };
+  $("mic").onclick = () => {
+    if (on) return rec.stop();
+    try { rec.start(); on = true; $("mic").classList.add("on"); } catch {}
+  };
 }
+
 addEventListener("keydown", (e) => {
   const k = e.key.toLowerCase(), c = e.ctrlKey || e.metaKey;
   if (c && k === "k") { e.preventDefault(); newDialog(); }
@@ -382,23 +1070,46 @@ addEventListener("keydown", (e) => {
   else if (e.altKey && k === "d") { e.preventDefault(); $("drawT").click(); }
   else if (e.altKey && k === "m") { e.preventDefault(); toggleUI(); }
   else if (e.key === "Escape") document.body.classList.remove("open");
-  else if (e.key === "ArrowUp" && document.activeElement === $("q") && !$("q").value) { const l = cur && [...cur.msgs].reverse().find((m) => m.role === "user"); if (l) $("q").value = l.content; }
+  else if (e.key === "ArrowUp" && document.activeElement === $("q") && !$("q").value) {
+    const l = cur && [...cur.msgs].reverse().find((m) => m.role === "user");
+    if (l) $("q").value = l.content;
+  }
 });
+
 let sx = null;
 addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
 addEventListener("touchend", (e) => {
   if (sx === null || !document.documentElement.classList.contains("m")) return;
   const dx = e.changedTouches[0].clientX - sx;
-  if (dx > 70 && sx < 30) document.body.classList.add("open"); else if (dx < -70) document.body.classList.remove("open");
+  if (dx > 70 && sx < 30) document.body.classList.add("open");
+  else if (dx < -70) document.body.classList.remove("open");
   sx = null;
 }, { passive: true });
-let ip; addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); ip = e; $("inst").hidden = false; });
-$("inst").onclick = async () => { ip.prompt(); await ip.userChoice; $("inst").hidden = true; };
-addEventListener("offline", () => toast("Нет интернета")); addEventListener("online", () => toast("Связь вернулась ✅"));
+
+let ip;
+addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  ip = e;
+  $("inst").hidden = false;
+});
+$("inst").onclick = async () => {
+  if (!ip) return;
+  ip.prompt();
+  await ip.userChoice;
+  $("inst").hidden = true;
+};
+
+addEventListener("offline", () => toast("Нет интернета ⚠"));
+addEventListener("online", () => toast("Связь вернулась ✅"));
 
 if (slowNet) $("sq").value = "fast";
 $("q").addEventListener("focus", () => setTimeout(() => { window.scrollTo(0, 0); scroll(); }, 120));
-setMode(mode); renderList(); renderMsgs(); ping(); setInterval(ping, 60000);
+
+setMode(mode);
+renderList();
+renderMsgs();
+ping();
+setInterval(ping, 60000);
 </script>
 </body>
 </html>
