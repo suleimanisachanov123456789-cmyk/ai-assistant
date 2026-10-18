@@ -1,4 +1,4 @@
-[18.10.2026 22:24] سليمان: async function sessionAuth(request, env) {
+async function sessionAuth(request, env) {
   const t = request.headers.get("X-Session") || "";
   if (!/^[a-f0-9]{64}$/.test(t) || !env?.BANS) return {};
   let s; try { s = JSON.parse((await env.BANS.get("s:" + t)) || "null"); } catch { s = null; }
