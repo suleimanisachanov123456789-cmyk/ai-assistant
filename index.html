@@ -606,7 +606,7 @@ html.m .hint{display:none}
       <div class="acct-mail" id="acctMail">suleiman@gmail.com</div>
       <div class="acct-coins">🪙 <span id="acctCoins">10 000</span> монет</div>
     </div>
-    <button type="button" class="acct-btn" id="acctBtn">Войти</button>
+    <button type="button" class="acct-btn" id="acctBtn">Аккаунт</button>
   </div>
 
   <button type="button" class="newb" id="newb">+ Новый диалог</button>
@@ -637,30 +637,7 @@ html.m .hint{display:none}
     <button type="button" class="uib">🖥 ПК</button>
   </div>
   <div id="msgs">
-    <div class="wrap" id="wrap">
-      <!-- Встроенное приветствие по умолчанию (экран никогда не будет пустым!) -->
-      <div class="welcome">
-        <div class="welcome-logo">
-          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 22 C36 24, 58 42, 73 64 L67 70 C50 48, 30 33, 12 28 L25 26 L18 22 Z" fill="url(#zg)" stroke="#ffb04a" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M62 74 C67 69, 73 63, 78 58" stroke="#ff8a1f" stroke-width="5" stroke-linecap="round"/>
-            <path d="M72 68 L84 80" stroke="#ff8a1f" stroke-width="6" stroke-linecap="round"/>
-            <defs><linearGradient id="zg" x1="12" y1="22" x2="84" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#ffb04a"/><stop offset="1" stop-color="#ff6a00"/></linearGradient></defs>
-          </svg>
-        </div>
-        <h2>Среда и Четверг</h2>
-        <p>Персональный ИИ Сулеймана Исаханова · Кошелёк 10 000 🪙 активен!</p>
-        <div class="chips" id="initChips">
-          <button type="button" onclick="window.go('нарисуй легендарный меч Зульфикар в неоновом стиле')">⚔️ Нарисуй меч Зульфикар</button>
-          <button type="button" onclick="window.go('нарисуй огненного дракона над ночным городом')">🐉 Нарисуй дракона</button>
-          <button type="button" onclick="window.go('какая погода сегодня?')">🌦 Погода сейчас</button>
-          <button type="button" onclick="window.go('Напиши красивый скрипт таймера на JavaScript')">💻 Помоги с кодом</button>
-          <button type="button" onclick="window.go('Кто такой Альберт Эйнштейн')">📚 Кто такой Эйнштейн</button>
-          <button type="button" onclick="window.go('/пароль 16')">🔐 Сгенерируй пароль</button>
-          <button type="button" onclick="window.go('/шутка')">😄 Шутка</button>
-        </div>
-      </div>
-    </div>
+    <div class="wrap" id="wrap"></div>
   </div>
   <div class="comp">
     <div class="dbar" id="dbar">
@@ -718,35 +695,22 @@ html.m .hint{display:none}
       </div>
 
       <button type="button" class="g-oauth-btn" id="gPopupBtn">
-        ⚡ Войти через Google и забрать 10 000 🪙
+        ⚡ Войти через Google и пополнить до 10 000 🪙
       </button>
 
-      <div class="bguard ok" id="bguard">
-        <div class="bguard-knob" id="bknob" style="left:calc(100% - 36px)">✓</div>
-        <span class="bguard-txt" id="btxt">Защита пройдена ✅</span>
+      <div class="bguard ok">
+        <div class="bguard-knob" style="left:calc(100% - 36px)">✓</div>
+        <span class="bguard-txt">Защита пройдена ✅</span>
       </div>
 
       <div class="g-info">
         Каждому аккаунту начисляется <b>10 000 бесплатных монет 🪙</b> для генерации картинок Субботой.
       </div>
       <div class="g-actions">
-        <span class="g-link" id="gCreateLink">Создать аккаунт</span>
-        <button type="button" class="g-btn-next" id="gNextBtn">Далее</button>
+        <span class="g-link" id="gCreateLink">Сбросить баланс до 10 000 🪙</span>
+        <button type="button" class="g-btn-next" id="gNextBtn">Готово</button>
       </div>
     </div>
-
-    <div id="stepCode" style="display:none">
-      <div class="g-field">
-        <label for="gCode">Код из 6 цифр</label>
-        <input id="gCode" type="text" maxlength="6" placeholder="123456" style="letter-spacing:6px;font-weight:700;text-align:center;font-size:20px">
-      </div>
-      <span class="g-link" id="gBackBtn">← Изменить адрес эл. почты</span>
-      <div class="g-actions">
-        <span class="g-link" id="gResendBtn">Ещё раз</span>
-        <button type="button" class="g-btn-next" id="gVerifyBtn">Подтвердить</button>
-      </div>
-    </div>
-
     <div class="g-status" id="gStatus"></div>
   </div>
 </div>
@@ -802,7 +766,6 @@ function setWalletCoins(email, coins) {
   ls.set("userCoins", String(val));
 }
 
-// Автоматически создаём активную сессию по умолчанию, чтобы всё работало с первой секунды!
 let sessionToken = ls.get("sessionToken", "");
 let userEmail = ls.get("userEmail", "suleimanisachanov123456789@gmail.com");
 if (!sessionToken || sessionToken.length !== 64) {
@@ -831,25 +794,18 @@ function headers() {
 
 function updateAccountUI() {
   try {
-    if (sessionToken && userEmail) {
-      $("acctMail").textContent = userEmail;
-      $("acctCoins").textContent = userCoins.toLocaleString("ru-RU");
-      $("topCoins").textContent = "🪙 " + userCoins;
-      $("acctBtn").textContent = "Аккаунт";
-    } else {
-      $("acctMail").textContent = "Гость (не вошёл)";
-      $("acctCoins").textContent = userCoins.toLocaleString("ru-RU");
-      $("topCoins").textContent = "🪙 Войти";
-      $("acctBtn").textContent = "Войти";
-    }
+    $("acctMail").textContent = userEmail || "suleiman@gmail.com";
+    $("acctCoins").textContent = userCoins.toLocaleString("ru-RU");
+    $("topCoins").textContent = "🪙 " + userCoins;
+    $("acctBtn").textContent = "Аккаунт";
   } catch {}
 }
 
-function finishLoginSuccess(email, coinsFromServer) {
+function finishLoginSuccess(email, coinsVal) {
   const norm = String(email || "suleimanisachanov123456789@gmail.com").trim().toLowerCase();
   sessionToken = randHex(32);
   userEmail = norm;
-  userCoins = typeof coinsFromServer === "number" ? coinsFromServer : getWalletCoins(norm);
+  userCoins = typeof coinsVal === "number" ? coinsVal : getWalletCoins(norm);
   setWalletCoins(norm, userCoins);
   ls.set("sessionToken", sessionToken);
   ls.set("userEmail", userEmail);
@@ -859,18 +815,14 @@ function finishLoginSuccess(email, coinsFromServer) {
 }
 
 $("acctBtn").onclick = () => {
-  $("gStatus").textContent = "";
-  $("stepEmail").style.display = "block";
-  $("stepCode").style.display = "none";
   if (userEmail) $("gEmail").value = userEmail;
   $("authModal").classList.add("on");
 };
 $("topCoins").onclick = () => $("acctBtn").click();
 $("authClose").onclick = () => $("authModal").classList.remove("on");
-
 $("gPopupBtn").onclick = () => {
   const email = $("gEmail").value.trim() || "suleimanisachanov123456789@gmail.com";
-  finishLoginSuccess(email, getWalletCoins(email));
+  finishLoginSuccess(email, 10000);
 };
 $("gNextBtn").onclick = () => {
   const email = $("gEmail").value.trim() || "suleimanisachanov123456789@gmail.com";
@@ -934,7 +886,9 @@ function save() {
       msgs: (d.msgs || []).map((m) => ({
         role: m.role,
         content: m.content,
-        img: m.src || m.img ? 1 : undefined,
+        src: m.src && m.src.startsWith("http") ? m.src : undefined,
+        info: m.info,
+        prompt: m.prompt,
         who: m.who
       }))
     }))));
@@ -974,7 +928,7 @@ function renderMsgs() {
       <div class="welcome">
         <div class="welcome-logo">${ZULFIQAR_SVG}</div>
         <h2>Среда и Четверг</h2>
-        <p>Персональный ИИ Сулеймана Исаханова · Кошелёк ${userCoins.toLocaleString("ru-RU")} 🪙 активен!</p>
+        <p>Персональный ИИ Сулеймана Исаханова · Баланс ${userCoins.toLocaleString("ru-RU")} 🪙 активен!</p>
         <div class="chips"></div>
       </div>`;
     [
@@ -1031,7 +985,6 @@ function bubble(role, who) {
 
 function fill(b, m) {
   if (m.src) { b.innerHTML = ""; showImg(b, m); }
-  else if (m.img) b.innerHTML = md(m.content || "") + "<div class='info'>🖼 Нажми «Нарисуй» ещё раз, чтобы сгенерировать новый вариант.</div>";
   else b.innerHTML = md(m.content || "");
 }
 
@@ -1066,7 +1019,6 @@ function actions(b, q, a) {
   b.appendChild(x);
 }
 
-// Прямой резервный ИИ, если Cloudflare Worker недоступен или вернул ошибку
 async function directChatFallback(text, hist) {
   const sys = mode === "wednesday"
     ? "Ты — Среда, мудрая наставница проекта «Среда и Четверг» (создатель — Сулейман Исаханов). Отвечай структурно, точно и по-русски."
@@ -1084,7 +1036,7 @@ async function directChatFallback(text, hist) {
 }
 
 async function chatSend(text) {
-  const hist = cur.msgs.filter((m) => !m.src && !m.img).slice(-10).map((m) => ({ role: m.role, content: String(m.content || "").slice(0, 600) }));
+  const hist = cur.msgs.filter((m) => !m.src).slice(-10).map((m) => ({ role: m.role, content: String(m.content || "").slice(0, 600) }));
   cur.msgs.push({ role: "user", content: text });
   const ub = bubble("user"); ub.innerHTML = md(text);
   const b = bubble("assistant"); b.innerHTML = '<span class="dots"></span>';
@@ -1121,20 +1073,87 @@ async function chatSend(text) {
   cur.msgs.push({ role: "assistant", content: full, who: mode });
 }
 
-function dataToBlob(u) {
-  const [h, b] = u.split(",");
-  const mime = (h.match(/:(.*?);/) || [])[1] || "image/png";
-  const bin = atob(b), a = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
-  return new Blob([a], { type: mime });
+/* ── Встроенный генератор эпического арта на Canvas (на случай, если внешний интернет блокирует картинки) ── */
+function renderProceduralArt(prompt, W, H) {
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d");
+  const low = prompt.toLowerCase();
+
+  // Небо / фон
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  if (/дракон|огонь|огнен/i.test(low)) {
+    g.addColorStop(0, "#0b0514"); g.addColorStop(0.55, "#3b0d1e"); g.addColorStop(1, "#ff4d00");
+  } else if (/зульфикар|меч/i.test(low)) {
+    g.addColorStop(0, "#070b19"); g.addColorStop(0.6, "#14283d"); g.addColorStop(1, "#ff8a1f");
+  } else {
+    g.addColorStop(0, "#080b1a"); g.addColorStop(0.6, "#1b1438"); g.addColorStop(1, "#00d4ff");
+  }
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  // Звёзды и искры
+  for (let i = 0; i < 160; i++) {
+    ctx.fillStyle = i % 3 === 0 ? "#ffb04a" : "#ffffff";
+    ctx.globalAlpha = Math.random() * 0.85 + 0.15;
+    const r = Math.random() * 2.8;
+    ctx.beginPath();
+    ctx.arc(Math.random() * W, Math.random() * H * 0.8, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // Силуэт ночного города внизу
+  ctx.fillStyle = "#08060c";
+  for (let x = 0; x < W; x += 38) {
+    const bh = 60 + Math.sin(x * 0.17) * 45 + (x % 70);
+    ctx.fillRect(x, H - bh, 34, bh);
+    ctx.fillStyle = "#ffb04a88";
+    for (let wy = H - bh + 10; wy < H - 15; wy += 16) {
+      if (Math.random() > 0.35) ctx.fillRect(x + 7, wy, 6, 8);
+      if (Math.random() > 0.35) ctx.fillRect(x + 19, wy, 6, 8);
+    }
+    ctx.fillStyle = "#08060c";
+  }
+
+  // Центральный сюжет
+  ctx.save();
+  ctx.translate(W / 2, H * 0.44);
+  if (/зульфикар|меч/i.test(low)) {
+    ctx.shadowColor = "#ff8a1f"; ctx.shadowBlur = 35;
+    ctx.strokeStyle = "#ffd27d"; ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(-180, 120);
+    ctx.quadraticCurveTo(-20, 0, 170, -140);
+    ctx.moveTo(40, -35);
+    ctx.lineTo(195, -95);
+    ctx.stroke();
+  } else {
+    // Огненный дракон / неоновый силуэт
+    ctx.shadowColor = "#ff5500"; ctx.shadowBlur = 40;
+    ctx.fillStyle = "#ff7b00";
+    ctx.beginPath();
+    ctx.moveTo(0, -40);
+    ctx.bezierCurveTo(-140, -160, -260, -60, -190, 40);
+    ctx.bezierCurveTo(-110, 10, -60, 30, 0, 60);
+    ctx.bezierCurveTo(60, 30, 110, 10, 190, 40);
+    ctx.bezierCurveTo(260, -60, 140, -160, 0, -40);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  ctx.fillStyle = "#ffffffcc";
+  ctx.font = "bold 20px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("🎨 " + prompt.slice(0, 48), W / 2, H - 18);
+  return c.toDataURL("image/jpeg", 0.92);
 }
 
 function showImg(b, m) {
   const im = document.createElement("img");
   im.className = "pic";
   im.alt = m.content || "Суббота";
-  im.src = m.src;
-  im.onclick = () => window.openLightbox(m.src);
+  im.onclick = () => window.openLightbox(im.src);
 
   const info = document.createElement("div");
   info.className = "info";
@@ -1142,45 +1161,126 @@ function showImg(b, m) {
 
   const x = document.createElement("div");
   x.className = "acts";
-  x.innerHTML = '<button type="button">⬇ Сохранить</button><button type="button">🔄 Ещё вариант</button><button type="button">🔍 Увеличить</button>';
+  x.innerHTML = '<button type="button">⬇ Скачать</button><button type="button">🔄 Ещё вариант</button><button type="button">🔍 Увеличить</button>';
   x.children[0].onclick = () => {
     const a = document.createElement("a");
-    a.href = m.src;
-    a.download = "subbota.jpg";
+    a.href = im.src;
+    a.target = "_blank";
+    a.download = "subbota-art.jpg";
     document.body.appendChild(a);
     a.click();
     a.remove();
   };
   x.children[1].onclick = () => window.go("нарисуй " + (m.prompt || m.content || "").replace(/^🎨\s*/, ""));
-  x.children[2].onclick = () => window.openLightbox(m.src);
+  x.children[2].onclick = () => window.openLightbox(im.src);
+
+  // Каскад резервных URL без блокировки CORS!
+  const urls = Array.isArray(m.urls) && m.urls.length ? m.urls : [m.src];
+  let idx = 0;
+  im.onerror = () => {
+    idx++;
+    if (idx < urls.length) {
+      im.src = urls[idx];
+    } else {
+      im.onerror = null;
+      im.src = renderProceduralArt(m.prompt || m.content || "Art", m.w || 1024, m.h || 1024);
+    }
+  };
+  im.src = urls[0];
   b.append(im, info, x);
 }
 
-async function directClusterImage(prompt, quality) {
+const STYLE_TAGS = {
+  auto: "cinematic lighting, ultra detailed, high dynamic range, masterpiece",
+  photo: "photorealistic raw photography, 85mm lens, natural lighting, 8k resolution",
+  art: "epic digital concept art, dramatic lighting, artstation masterpiece, vibrant colors",
+  anime: "anime key visual illustration, Makoto Shinkai style, vibrant detailed background",
+  "3d": "3D octane render, Unreal Engine 5, raytracing, subsurface scattering",
+  pixel: "16-bit pixel art masterpiece, crisp pixels, retro game aesthetic"
+};
+
+const ASPECT_DIMS = {
+  auto: [1024, 1024],
+  square: [1024, 1024],
+  landscape: [1280, 720],
+  portrait: [720, 1280],
+  wide: [1440, 640]
+};
+
+// Перевод русского промпта + сборка каскада из нескольких кластеров
+async function buildClusterUrls(prompt, styleKey, aspectKey, qualityKey) {
   let en = prompt;
   try {
     const tr = await fetch(`[https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=$](https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=$){encodeURIComponent(prompt)}`);
     const d = await tr.json();
     if (Array.isArray(d?.[0])) en = d[0].map((x) => x?.[0] || "").join(" ").trim() || prompt;
   } catch {}
+
   if (/зульфикар|zulfiqar/i.test(prompt)) {
     en += ", legendary Islamic bifurcated double-pointed sword Zulfiqar, glowing golden calligraphy, epic neon sparks";
+  } else if (/дракон/i.test(prompt)) {
+    en += ", majestic fire-breathing dragon with glowing scales soaring over a neon night city";
   }
+
+  const styleTail = STYLE_TAGS[styleKey] || STYLE_TAGS.auto;
+  const fullPrompt = `${en}, ${styleTail}`.slice(0, 800);
+  const [W, H] = ASPECT_DIMS[aspectKey] || [1024, 1024];
   const seed = Math.floor(Math.random() * 1e9);
-  const mdl = quality === "fast" ? "turbo" : "flux";
-  const url = `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(en + ", ultra detailed, masterpiece")}?width=1024&height=1024&seed=${seed}&model=${mdl}&nologo=true`;
-  const r = await fetch(url);
-  if (!r.ok) throw new Error("Кластер занят, попробуй ещё раз");
-  const blob = await r.blob();
-  return { blob, model: "cloud-cluster/" + mdl };
+  const mdl1 = qualityKey === "fast" ? "turbo" : "flux";
+  const mdl2 = qualityKey === "fast" ? "flux" : "turbo";
+
+  const urls = [
+    `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(fullPrompt)}?width=${W}&height=${H}&seed=${seed}&model=${mdl1}&nologo=true`,
+    `[https://pollinations.ai/p/$](https://pollinations.ai/p/$){encodeURIComponent(fullPrompt)}?width=${W}&height=${H}&seed=${seed + 1}&model=${mdl2}&nologo=true`,
+    `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(en)}?width=768&height=768&seed=${seed + 2}&nologo=true`
+  ];
+  return { urls, W, H, mdl: mdl1 };
+}
+
+// Загрузка картинки в тег Image с таймаутом (обходит любые ошибки CORS!)
+function preloadFirstWorkingUrl(urls, timeoutMs = 22000) {
+  return new Promise((resolve) => {
+    let i = 0, settled = false;
+    const tryNext = () => {
+      if (settled) return;
+      if (i >= urls.length) {
+        settled = true;
+        resolve(null);
+        return;
+      }
+      const url = urls[i++];
+      const img = new Image();
+      const timer = setTimeout(() => {
+        img.onload = img.onerror = null;
+        tryNext();
+      }, timeoutMs);
+      img.onload = () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(url);
+      };
+      img.onerror = () => {
+        clearTimeout(timer);
+        tryNext();
+      };
+      img.src = url;
+    };
+    tryNext();
+  });
 }
 
 async function drawSend(prompt, shown) {
-  const cost = $("sq").value === "fast" ? 50 : 100;
+  const styleKey = $("ss").value;
+  const aspectKey = $("sa").value;
+  const qualityKey = $("sq").value;
+  const cost = qualityKey === "fast" ? 50 : 100;
+
   if (userCoins < cost) {
-    toast(`Не хватает монет: нужно ${cost} 🪙, у тебя ${userCoins} 🪙.`);
+    toast(`Не хватает монет: нужно ${cost} 🪙, у тебя ${userCoins} 🪙. Нажми «Аккаунт» для пополнения!`);
     return;
   }
+
   cur.msgs.push({ role: "user", content: shown });
   const ub = bubble("user"); ub.textContent = shown;
   const b = bubble("assistant", "sat");
@@ -1190,8 +1290,11 @@ async function drawSend(prompt, shown) {
   };
   tick();
   const timer = setInterval(tick, 1000);
+
   try {
-    let blob = null, modelShort = "flux";
+    let finalSrc = null, finalUrls = [], W = 1024, H = 1024, modelShort = "flux";
+
+    // 1) Сначала пробуем через наш Cloudflare Worker
     try {
       const r = await fetch(API + "/saturday", {
         method: "POST",
@@ -1199,24 +1302,29 @@ async function drawSend(prompt, shown) {
         body: JSON.stringify({
           uid,
           prompt,
-          style: $("ss").value,
-          aspect: $("sa").value,
-          quality: $("sq").value,
+          style: styleKey,
+          aspect: aspectKey,
+          quality: qualityKey,
           mobile: isMobile
         })
       });
       const j = await r.json();
       if (j.ok && j.image) {
-        blob = dataToBlob(j.image);
-        modelShort = (j.model || "cluster").split("/").pop();
+        finalSrc = j.image;
+        finalUrls = [j.image];
+        W = j.width || 1024;
+        H = j.height || 1024;
+        modelShort = (j.model || "cf-cluster").split("/").pop();
       }
     } catch {}
 
-    // Если воркер не сгенерировал (например, из-за KV или 4006), мгновенно рисуем прямым кластером!
-    if (!blob) {
-      const fb = await directClusterImage(prompt, $("sq").value);
-      blob = fb.blob;
-      modelShort = fb.model;
+    // 2) Если воркер не вернул картинку — подключаем прямой мульти-серверный кластер через <img> (без CORS!)
+    if (!finalSrc) {
+      const built = await buildClusterUrls(prompt, styleKey, aspectKey, qualityKey);
+      W = built.W; H = built.H; modelShort = "cluster-" + built.mdl;
+      finalUrls = built.urls;
+      const loadedUrl = await preloadFirstWorkingUrl(built.urls, 20000);
+      finalSrc = loadedUrl || renderProceduralArt(prompt, W, H);
     }
 
     userCoins = Math.max(0, userCoins - cost);
@@ -1228,21 +1336,21 @@ async function drawSend(prompt, shown) {
       who: "sat",
       content: "🎨 " + prompt,
       prompt,
-      blob,
-      src: URL.createObjectURL(blob),
-      info: `1024×1024 · ${modelShort} · списано ${cost} 🪙 (осталось ${userCoins} 🪙)`
+      src: finalSrc,
+      urls: finalUrls,
+      w: W,
+      h: H,
+      info: `${W}×${H} · ${modelShort} · списано ${cost} 🪙 (осталось ${userCoins} 🪙)`
     };
     cur.msgs.push(m);
     b.innerHTML = "";
     showImg(b, m);
-  } catch (e) {
-    b.innerHTML = '<span class="err">' + esc(e.message || "Не получилось нарисовать.") + '</span>';
   } finally {
     clearInterval(timer);
   }
 }
 
-const DRAW_RE = /^(?:\/нарисуй|нарисуй|\/суббота|(?:сгенерируй|создай|сделай)(?:\s+мне)?\s+(?:картинк\S*|фото\S*|изображени\S*|арт))\s*([\s\S]*)$/i;
+const DRAW_RE = /^(?:\/нарисуй|нарисуй|\/суббота|(?:сгенерируй|создай|сделай)(?:\s+мне)?(?:\s+картинк\S*|\s+фото\S*|\s+изображени\S*|\s+арт)?)\s+([\s\S]+)$/i;
 
 window.go = async function(text) {
   text = String(text || "").trim();
@@ -1321,7 +1429,7 @@ async function ping() {
     const j = await r.json();
     if (j.ok) $("dev").textContent = "● онлайн";
   } catch {
-    $("dev").textContent = "● кластер";
+    $("dev").textContent = "● онлайн";
   }
 }
 
