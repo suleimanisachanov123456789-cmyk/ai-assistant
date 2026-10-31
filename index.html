@@ -3,16 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Среда и Четверг — Персональный ИИ</title>
-<meta name="description" content="Мультиязычный голосовой ИИ-ассистент и генератор артов Суббота. Создатель: Исаханов Сулейман.">
+<title>Среда и Четверг</title>
 <meta name="theme-color" content="#14110e">
 <meta name="color-scheme" content="dark">
-
-<!-- Open Graph для красивого превью в соцсетях и мессенджерах -->
-<meta property="og:title" content="Среда и Четверг — ИИ Ассистент">
-<meta property="og:description" content="Умный голосовой помощник и генератор изображений Суббота.">
-<meta property="og:type" content="website">
-
 <style>
 :root{
   color-scheme:dark;
@@ -293,14 +286,13 @@ section{
 .bub img.pic{
   display:block;
   width:100%;
-  max-height:560px;
+  max-width:560px;
   border-radius:14px;
   border:1px solid var(--line);
-  margin:6px 0;
+  margin:8px 0;
   cursor:zoom-in;
   box-shadow:0 8px 30px rgba(0,0,0,.6);
   background:#14110e;
-  object-fit:cover;
 }
 .info{color:var(--mut);font-size:13px;margin:6px 0}
 .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
@@ -414,7 +406,6 @@ section{
 }
 .g-logo{display:flex;justify-content:center;margin-bottom:12px}
 .g-title{text-align:center;font-size:24px;font-weight:500;margin:0 0 6px;color:#202124}
-.g-sub{text-align:center;font-size:15px;color:#202124;margin:0 0 20px}
 .g-field{position:relative;margin-bottom:12px}
 .g-field input{
   width:100%;
@@ -452,7 +443,6 @@ section{
   cursor:pointer;
   margin-bottom:14px;
 }
-.g-oauth-btn:hover{background:#1557b0}
 .g-btn-next{
   background:#1a73e8;
   color:#ffffff;
@@ -521,15 +511,6 @@ section{
   #msgs { padding: 14px 10px; }
   .hint { display: none; }
 }
-
-html.frame body {
-  width: 400px;
-  height: min(850px, calc(100dvh - 32px));
-  margin: 16px auto;
-  border: 10px solid #050505;
-  border-radius: 44px;
-  box-shadow: 0 30px 90px #000, 0 0 0 2px #2a2a2a;
-}
 </style>
 </head>
 <body>
@@ -557,7 +538,7 @@ html.frame body {
       <button type="button" data-m="thursday" class="on" id="modeThuBtn">Четверг</button>
     </div>
     <div class="tools">
-      <button type="button" class="uib" id="uiToggleBtn">📱 Мобильный вид</button>
+      <button type="button" class="uib" id="uiToggleBtn">📱 Меню</button>
       <button type="button" id="langBtn" class="lang-btn" title="Сменить язык">🌐 RU</button>
       <button type="button" id="voiceToggle" class="voice-toggle on" title="Голос ассистента">🔊 Вкл</button>
       <button type="button" id="acc" title="Цвет темы">🎨</button>
@@ -575,7 +556,6 @@ html.frame body {
     <button type="button" id="menu" aria-label="Меню">☰</button>
     <b id="ttl">Среда и Четверг</b>
     <span class="top-coins" id="topCoins">🪙 10000</span>
-    <button type="button" class="uib" id="topUiBtn">🖥 ПК</button>
   </div>
   <div id="msgs">
     <div class="wrap" id="wrap"></div>
@@ -605,7 +585,7 @@ html.frame body {
     <form class="box" id="form">
       <button type="button" class="ic" id="drawT" title="Режим рисования (Суббота)">🎨</button>
       <button type="button" class="ic" id="mic" title="Голосовой ввод">🎤</button>
-      <textarea id="q" rows="1" placeholder="Напиши сообщение или «нарисуй легендарный меч Зульфикар»"></textarea>
+      <textarea id="q" rows="1" placeholder="Напиши сообщение или «нарисуй огненного дракона»"></textarea>
       <button type="submit" class="ic snd" id="snd" title="Отправить">➤</button>
     </form>
     <div class="hint" id="hint">/помощь · Нажми 🔊, чтобы ассистент озвучивал ответы вслух как Алиса</div>
@@ -618,10 +598,10 @@ html.frame body {
     <div class="g-logo">
       <svg width="75" height="24" viewBox="0 0 75 24"><path d="M9.24 8.19v2.46h5.88c-.18 1.38-.64 2.39-1.34 3.1-.86.86-2.2 1.8-4.54 1.8-3.62 0-6.45-2.92-6.45-6.54s2.83-6.54 6.45-6.54c1.95 0 3.38.77 4.43 1.76L15.4 2.5C13.94 1.08 11.98 0 9.24 0 4.28 0 .11 4.04.11 9s4.17 9 9.13 9c2.68 0 4.7-.88 6.28-2.52 1.62-1.62 2.13-3.91 2.13-5.75 0-.57-.04-1.1-.13-1.54H9.24z" fill="#4285F4"/><path d="M25 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52 0-2.09 1.52-3.52 3.28-3.52s3.28 1.43 3.28 3.52c0 2.07-1.52 3.52-3.28 3.52z" fill="#EA4335"/><path d="M53.58 7.49h-.09c-.57-.68-1.67-1.3-3.06-1.3C47.53 6.19 45 8.72 45 12c0 3.26 2.53 5.81 5.43 5.81 1.39 0 2.49-.62 3.06-1.32h.09v.81c0 2.22-1.19 3.41-3.1 3.41-1.56 0-2.53-1.12-2.93-2.07l-2.22.92c.64 1.54 2.33 3.43 5.15 3.43 2.99 0 5.52-1.76 5.52-6.05V6.49h-2.42v1zm-2.93 8.03c-1.76 0-3.1-1.5-3.1-3.52 0-2.05 1.34-3.52 3.1-3.52 1.74 0 3.1 1.5 3.1 3.54.01 2.03-1.36 3.5-3.1 3.5z" fill="#4285F4"/><path d="M38 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52 0-2.09 1.52-3.52 3.28-3.52s3.28 1.43 3.28 3.52c0 2.07-1.52 3.52-3.28 3.52z" fill="#FBBC05"/><path d="M58 .24h2.51v17.57H58z" fill="#34A853"/><path d="M68.26 15.52c-1.3 0-2.22-.59-2.82-1.76l7.77-3.21-.26-.66c-.48-1.3-1.96-3.7-4.97-3.7-2.99 0-5.48 2.35-5.48 5.81 0 3.26 2.46 5.81 5.76 5.81 2.66 0 4.2-1.63 4.84-2.57l-1.98-1.32c-.66.96-1.56 1.6-2.86 1.6zm-.18-7.15c1.03 0 1.91.53 2.2 1.28l-5.25 2.17c0-2.44 1.73-3.45 3.05-3.45z" fill="#EA4335"/></svg>
     </div>
-    <h3 class="g-title" id="authTitle">Личный баланс</h3>
+    <h3 class="g-title">Личный баланс</h3>
     <div id="stepEmail">
       <div class="g-field">
-        <label for="gEmail" id="authEmailLabel">Почта аккаунта</label>
+        <label for="gEmail">Почта аккаунта</label>
         <input id="gEmail" type="email" value="suleimanisachanov123456789@gmail.com">
       </div>
       <button type="button" class="g-oauth-btn" id="gPopupBtn">
@@ -767,11 +747,10 @@ function applyLanguage() {
 
 $("langBtn").onclick = () => {
   const list = ["ru", "en", "de"];
-  const next = list[(list.indexOf(currentLang) + 1) % list.length];
-  currentLang = next;
-  ls.set("lang", next);
+  currentLang = list[(list.indexOf(currentLang) + 1) % list.length];
+  ls.set("lang", currentLang);
   applyLanguage();
-  toast("Language: " + next.toUpperCase());
+  toast("Language: " + currentLang.toUpperCase());
 };
 
 function updateAccountUI() {
@@ -1064,23 +1043,15 @@ function showImg(b, m) {
 }
 
 const STYLE_PROMPTS = {
-  auto: "cinematic masterpiece digital art, dramatic volumetric lighting, ultra-detailed textures, octane render, 8k",
-  photo: "award-winning raw photograph, natural sunlight, highly detailed 85mm lens, sharp focus, 8k uhd",
-  art: "legendary concept artwork by artstation trending masters, rich vibrant color palette, dynamic lighting",
-  anime: "stunning high-end anime movie visual by Makoto Shinkai studio, rich colors, intricate background",
-  "3d": "hyperrealistic 3D CGI render, Unreal Engine 5 render, cinematic lighting, raytracing, subsurface scattering",
-  pixel: "authentic 16-bit detailed pixel art masterpiece, crisp pixels, retro game vibe"
+  auto: "cinematic masterpiece digital art, volumetric lighting, ultra-detailed textures, octane render, 8k",
+  photo: "award-winning raw photograph, natural sunlight, 85mm lens, sharp focus, 8k uhd",
+  art: "legendary concept artwork by artstation masters, dynamic lighting, masterpiece",
+  anime: "stunning high-end anime movie visual by Makoto Shinkai studio, rich colors",
+  "3d": "hyperrealistic 3D CGI render, Unreal Engine 5 render, cinematic lighting, raytracing",
+  pixel: "authentic 16-bit detailed pixel art masterpiece, crisp pixels, retro game aesthetic"
 };
 
-const ASPECT_DIMS = {
-  auto: [1024, 1024],
-  square: [1024, 1024],
-  landscape: [1280, 720],
-  portrait: [720, 1280],
-  wide: [1440, 640]
-};
-
-async function craftHighQualityArtUrl(prompt, styleKey, aspectKey, qualityKey) {
+async function fetchDirectImageBase64(prompt, qualityKey) {
   let en = prompt;
   try {
     const tr = await fetch(`[https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=$](https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=$){encodeURIComponent(prompt)}`);
@@ -1089,24 +1060,31 @@ async function craftHighQualityArtUrl(prompt, styleKey, aspectKey, qualityKey) {
   } catch {}
 
   if (/зульфикар|zulfiqar/i.test(prompt)) {
-    en = "legendary Islamic bifurcated double-bladed scimitar sword Zulfiqar with iconic split twin-point tips, glowing golden Arabic calligraphy engravings, intricate damascus steel blade, radiant neon amber sparks, floating in majestic cosmic atmosphere";
+    en = "legendary Islamic bifurcated double-bladed scimitar sword Zulfiqar with iconic split twin-point tips, glowing golden Arabic calligraphy engravings, radiant neon amber sparks";
   } else if (/дракон|dragon/i.test(prompt)) {
-    en = "majestic colossal fire dragon with glowing crimson and gold scales, breathing fiery orange flames, soaring above a futuristic cyberpunk metropolis night city";
+    en = "majestic colossal fire dragon with glowing crimson and gold scales, breathing fiery orange flames, soaring above a futuristic neon metropolis night city";
   }
 
-  const styleTail = STYLE_PROMPTS[styleKey] || STYLE_PROMPTS.auto;
+  const styleTail = STYLE_PROMPTS[$("ss").value] || STYLE_PROMPTS.auto;
   const completePrompt = `${en}, ${styleTail}, intricate details, award winning composition`.slice(0, 900);
-  const [W, H] = ASPECT_DIMS[aspectKey] || [1024, 1024];
   const seed = Math.floor(Math.random() * 9999999);
   const mdl = qualityKey === "fast" ? "turbo" : "flux";
 
-  const directUrl = `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(completePrompt)}?width=${W}&height=${H}&seed=${seed}&model=${mdl}&nologo=true&enhance=true`;
-  return { url: directUrl, W, H, mdl };
+  const directUrl = `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(completePrompt)}?width=1024&height=1024&seed=${seed}&model=${mdl}&nologo=true`;
+  
+  // Конвертация в data:image Base64 прямо в браузере, чтобы никогда не было разбитой картинки!
+  const r = await fetch(directUrl);
+  if (!r.ok) throw new Error("Кластер занят");
+  const blob = await r.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve({ b64Url: reader.result, mdl });
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 async function drawSend(prompt, shown) {
-  const styleKey = $("ss").value;
-  const aspectKey = $("sa").value;
   const qualityKey = $("sq").value;
   const cost = qualityKey === "fast" ? 50 : 100;
 
@@ -1131,7 +1109,33 @@ async function drawSend(prompt, shown) {
   const timer = setInterval(tick, 1000);
 
   try {
-    const art = await craftHighQualityArtUrl(prompt, styleKey, aspectKey, qualityKey);
+    let finalSrc = "", modelShort = "flux";
+
+    // 1. Попытка через воркер Cloudflare
+    try {
+      const r = await fetch(API + "/saturday", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: userEmail,
+          prompt,
+          quality: qualityKey
+        })
+      });
+      const j = await r.json();
+      if (j.ok && j.image) {
+        finalSrc = j.image;
+        modelShort = j.model || "flux";
+      }
+    } catch (e) {}
+
+    // 2. Если воркер занят, получаем надежный Base64 напрямую
+    if (!finalSrc) {
+      const direct = await fetchDirectImageBase64(prompt, qualityKey);
+      finalSrc = direct.b64Url;
+      modelShort = direct.mdl;
+    }
+
     userCoins = Math.max(0, userCoins - cost);
     setWalletCoins(userEmail, userCoins);
     updateAccountUI();
@@ -1141,21 +1145,20 @@ async function drawSend(prompt, shown) {
       who: "sat",
       content: "🎨 " + prompt,
       prompt,
-      src: art.url,
-      w: art.W,
-      h: art.H,
-      info: `${art.W}×${art.H} · ${art.mdl} · -${cost} 🪙 (${userCoins} 🪙)`
+      src: finalSrc,
+      info: `1024×1024 · ${modelShort} · -${cost} 🪙 (${userCoins} 🪙)`
     };
     cur.msgs.push(m);
     b.innerHTML = "";
     showImg(b, m);
     speakText(t.artDone, "sat");
+  } catch (err) {
+    b.innerHTML = '<span class="err">Не удалось создать изображение. Попробуйте еще раз через несколько секунд.</span>';
   } finally {
     clearInterval(timer);
   }
 }
 
-// Полноценный разбор запросов на рисование
 const DRAW_RE = /^(?:\/нарисуй|нарисуй|\/суббота|draw|paint|zeichne|(?:сгенерируй|создай|сделай)(?:\s+мне)?(?:\s+картинк\S*|\s+фото\S*|\s+изображени\S*|\s+арт)?)\s+([\s\S]+)$/i;
 
 window.go = async function(text) {
@@ -1221,13 +1224,7 @@ $("modes").onclick = (e) => {
   if (b) setMode(b.dataset.m);
 };
 
-function toggleUI() {
-  const isFrame = document.documentElement.classList.toggle("frame");
-  $("uiToggleBtn").textContent = isFrame ? "🖥 ПК вид" : "📱 Мобильный вид";
-}
-$("uiToggleBtn").onclick = toggleUI;
-$("topUiBtn").onclick = toggleUI;
-
+$("uiToggleBtn").onclick = () => document.body.classList.toggle("open");
 $("srch").oninput = renderList;
 
 const ACC = [
