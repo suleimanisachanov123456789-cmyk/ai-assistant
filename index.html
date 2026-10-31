@@ -34,7 +34,6 @@ body{
 }
 button,select,textarea,input{font:inherit;color:inherit}
 
-/* ── сайдбар ── */
 aside{
   background:var(--side);
   border-right:1px solid var(--line);
@@ -74,7 +73,6 @@ aside{
   white-space:nowrap;
 }
 
-/* ── карточка аккаунта и монет ── */
 .acct-box{
   margin:12px 14px 0;
   background:#12100d;
@@ -181,8 +179,8 @@ aside{
 }
 .tools button:hover,.top .uib:hover{border-color:var(--or)}
 .tools .uib{flex:1 1 100%;font-weight:700;color:var(--or)}
+.voice-toggle.on{border-color:var(--ok);color:var(--ok)}
 
-/* ── основная часть ── */
 section{
   display:flex;
   flex-direction:column;
@@ -225,7 +223,6 @@ section{
 }
 .wrap{max-width:820px;margin:0 auto}
 
-/* ── приветствие ── */
 .welcome{text-align:center;padding:4vh 12px 0}
 .welcome-logo{
   width:90px;
@@ -259,7 +256,6 @@ section{
 }
 .chips button:hover{border-color:var(--or);transform:translateY(-2px)}
 
-/* ── сообщения ── */
 .msg{display:flex;gap:11px;margin:0 0 18px;animation:in .22s ease}
 @keyframes in{from{opacity:0;transform:translateY(8px)}}
 .av{
@@ -284,32 +280,6 @@ section{
   overflow-wrap:anywhere;
 }
 .me .bub{background:#2b2012;border-color:#5a3d17}
-.code-wrap{position:relative;margin:9px 0}
-.code-copy{
-  position:absolute;
-  top:7px;
-  right:8px;
-  background:#1d1a16cc;
-  border:1px solid var(--line);
-  border-radius:7px;
-  color:var(--mut);
-  font-size:12px;
-  padding:2px 8px;
-  cursor:pointer;
-}
-.code-copy:hover{border-color:var(--or);color:var(--tx)}
-.bub pre{
-  background:#0b0a09;
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:12px;
-  overflow-x:auto;
-  font-size:13.5px;
-  margin:0;
-}
-.bub code{background:#0b0a09;border-radius:6px;padding:1px 6px;font-size:.92em}
-.bub pre code{padding:0;background:none}
-.bub a{color:#ffb066}
 .bub img.pic{
   display:block;
   max-width:100%;
@@ -337,7 +307,6 @@ section{
 @keyframes b{50%{opacity:.2}}
 .err{color:var(--bad)}
 
-/* ── панель ввода ── */
 .comp{
   padding:10px 16px 14px;
   border-top:1px solid #1f1b16;
@@ -399,7 +368,6 @@ section{
 .hint{text-align:center;color:var(--mut);font-size:12px;margin-top:7px}
 .ov{display:none}
 
-/* ── ОКНО ВХОДА В СТИЛЕ GOOGLE ── */
 #authModal{
   position:fixed;
   inset:0;
@@ -457,16 +425,6 @@ section{
   color:#1a73e8;
   font-weight:500;
 }
-.g-link{
-  display:inline-block;
-  color:#1a73e8;
-  font-size:14px;
-  font-weight:600;
-  text-decoration:none;
-  cursor:pointer;
-  margin-bottom:12px;
-}
-.g-link:hover{text-decoration:underline}
 .g-oauth-btn{
   width:100%;
   display:flex;
@@ -482,43 +440,8 @@ section{
   color:#ffffff;
   cursor:pointer;
   margin-bottom:14px;
-  box-shadow:0 3px 12px rgba(26,115,232,.35);
 }
 .g-oauth-btn:hover{background:#1557b0}
-.bguard{
-  margin:6px 0 14px;
-  background:#f1f3f4;
-  border:1px solid #dadce0;
-  border-radius:999px;
-  height:42px;
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  user-select:none;
-  overflow:hidden;
-}
-.bguard-txt{font-size:12.5px;color:#5f6368;font-weight:500;pointer-events:none}
-.bguard.ok{background:#e6f4ea;border-color:#34a853}
-.bguard.ok .bguard-txt{color:#137333;font-weight:700}
-.bguard-knob{
-  position:absolute;
-  left:4px;
-  top:4px;
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  background:#1a73e8;
-  color:#fff;
-  display:grid;
-  place-items:center;
-  font-weight:900;
-  cursor:pointer;
-}
-.bguard.ok .bguard-knob{background:#34a853}
-.g-info{font-size:13px;color:#5f6368;line-height:1.45;margin-bottom:18px}
-.g-info b{color:#1a73e8}
-.g-actions{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .g-btn-next{
   background:#1a73e8;
   color:#ffffff;
@@ -529,9 +452,6 @@ section{
   font-weight:600;
   cursor:pointer;
 }
-.g-btn-next:hover{background:#1557b0}
-.g-status{margin-top:12px;font-size:13px;text-align:center;color:#d93025}
-.g-status.ok{color:#188038}
 
 #lightbox{
   position:fixed;
@@ -565,17 +485,6 @@ section{
 }
 #toast.on{opacity:1;transform:translate(-50%,0)}
 
-html.frame{background:#070605}
-html.frame body{
-  width:400px;
-  height:min(850px,calc(100dvh - 32px));
-  margin:16px auto;
-  border:10px solid #050505;
-  border-radius:44px;
-  box-shadow:0 30px 90px #000,0 0 0 2px #2a2a2a;
-  overflow:hidden;
-  position:relative;
-}
 html.m body{grid-template-columns:1fr}
 html.m aside{
   position:fixed;
@@ -619,10 +528,11 @@ html.m .hint{display:none}
     </div>
     <div class="tools">
       <button type="button" class="uib">📱 Мобильная версия</button>
+      <button type="button" id="voiceToggle" class="voice-toggle on" title="Голос ассистента">🔊 Голос: Вкл</button>
       <button type="button" id="acc" title="Сменить цвет темы">🎨</button>
       <button type="button" id="fa" title="Шрифт меньше">A−</button>
       <button type="button" id="fb" title="Шрифт больше">A+</button>
-      <button type="button" id="exp" title="Скачать историю диалога">⬇ .txt</button>
+      <button type="button" id="exp" title="Скачать историю">⬇ .txt</button>
     </div>
   </div>
 </aside>
@@ -664,54 +574,32 @@ html.m .hint{display:none}
     <form class="box" id="form">
       <button type="button" class="ic" id="drawT" title="Режим рисования (Суббота)">🎨</button>
       <button type="button" class="ic" id="mic" title="Голосовой ввод">🎤</button>
-      <textarea id="q" rows="1" placeholder="Напиши сообщение… или «нарисуй легендарный меч Зульфикар»"></textarea>
+      <textarea id="q" rows="1" placeholder="Скажи что-нибудь или напиши «нарисуй огненного дракона»"></textarea>
       <button type="submit" class="ic snd" id="snd" title="Отправить">➤</button>
     </form>
-    <div class="hint" id="hint">/помощь · Ctrl+K новый диалог · Alt+D рисовать · Alt+M режим ПК/телефон · ↑ вернуть сообщение</div>
+    <div class="hint" id="hint">/помощь · Нажми 🔊 Голос, чтобы ассистент озвучивал ответы вслух как Алиса</div>
   </div>
 </section>
 
-<!-- МОДАЛЬНОЕ ОКНО ВХОДА GOOGLE -->
 <div id="authModal">
   <div class="g-card">
     <button type="button" class="g-close" id="authClose" title="Закрыть">×</button>
     <div class="g-logo">
-      <svg width="75" height="24" viewBox="0 0 75 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M9.24 8.19v2.46h5.88c-.18 1.38-.64 2.39-1.34 3.1-.86.86-2.2 1.8-4.54 1.8-3.62 0-6.45-2.92-6.45-6.54s2.83-6.54 6.45-6.54c1.95 0 3.38.77 4.43 1.76L15.4 2.5C13.94 1.08 11.98 0 9.24 0 4.28 0 .11 4.04.11 9s4.17 9 9.13 9c2.68 0 4.7-.88 6.28-2.52 1.62-1.62 2.13-3.91 2.13-5.75 0-.57-.04-1.1-.13-1.54H9.24z" fill="#4285F4"/>
-        <path d="M25 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52 0-2.09 1.52-3.52 3.28-3.52s3.28 1.43 3.28 3.52c0 2.07-1.52 3.52-3.28 3.52z" fill="#EA4335"/>
-        <path d="M53.58 7.49h-.09c-.57-.68-1.67-1.3-3.06-1.3C47.53 6.19 45 8.72 45 12c0 3.26 2.53 5.81 5.43 5.81 1.39 0 2.49-.62 3.06-1.32h.09v.81c0 2.22-1.19 3.41-3.1 3.41-1.56 0-2.53-1.12-2.93-2.07l-2.22.92c.64 1.54 2.33 3.43 5.15 3.43 2.99 0 5.52-1.76 5.52-6.05V6.49h-2.42v1zm-2.93 8.03c-1.76 0-3.1-1.5-3.1-3.52 0-2.05 1.34-3.52 3.1-3.52 1.74 0 3.1 1.5 3.1 3.54.01 2.03-1.36 3.5-3.1 3.5z" fill="#4285F4"/>
-        <path d="M38 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52 0-2.09 1.52-3.52 3.28-3.52s3.28 1.43 3.28 3.52c0 2.07-1.52 3.52-3.28 3.52z" fill="#FBBC05"/>
-        <path d="M58 .24h2.51v17.57H58z" fill="#34A853"/>
-        <path d="M68.26 15.52c-1.3 0-2.22-.59-2.82-1.76l7.77-3.21-.26-.66c-.48-1.3-1.96-3.7-4.97-3.7-2.99 0-5.48 2.35-5.48 5.81 0 3.26 2.46 5.81 5.76 5.81 2.66 0 4.2-1.63 4.84-2.57l-1.98-1.32c-.66.96-1.56 1.6-2.86 1.6zm-.18-7.15c1.03 0 1.91.53 2.2 1.28l-5.25 2.17c0-2.44 1.73-3.45 3.05-3.45z" fill="#EA4335"/>
-      </svg>
+      <svg width="75" height="24" viewBox="0 0 75 24"><path d="M9.24 8.19v2.46h5.88c-.18 1.38-.64 2.39-1.34 3.1-.86.86-2.2 1.8-4.54 1.8-3.62 0-6.45-2.92-6.45-6.54s2.83-6.54 6.45-6.54c1.95 0 3.38.77 4.43 1.76L15.4 2.5C13.94 1.08 11.98 0 9.24 0 4.28 0 .11 4.04.11 9s4.17 9 9.13 9c2.68 0 4.7-.88 6.28-2.52 1.62-1.62 2.13-3.91 2.13-5.75 0-.57-.04-1.1-.13-1.54H9.24z" fill="#4285F4"/><path d="M25 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52 0-2.09 1.52-3.52 3.28-3.52s3.28 1.43 3.28 3.52c0 2.07-1.52 3.52-3.28 3.52z" fill="#EA4335"/><path d="M53.58 7.49h-.09c-.57-.68-1.67-1.3-3.06-1.3C47.53 6.19 45 8.72 45 12c0 3.26 2.53 5.81 5.43 5.81 1.39 0 2.49-.62 3.06-1.32h.09v.81c0 2.22-1.19 3.41-3.1 3.41-1.56 0-2.53-1.12-2.93-2.07l-2.22.92c.64 1.54 2.33 3.43 5.15 3.43 2.99 0 5.52-1.76 5.52-6.05V6.49h-2.42v1zm-2.93 8.03c-1.76 0-3.1-1.5-3.1-3.52 0-2.05 1.34-3.52 3.1-3.52 1.74 0 3.1 1.5 3.1 3.54.01 2.03-1.36 3.5-3.1 3.5z" fill="#4285F4"/><path d="M38 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52 0-2.09 1.52-3.52 3.28-3.52s3.28 1.43 3.28 3.52c0 2.07-1.52 3.52-3.28 3.52z" fill="#FBBC05"/><path d="M58 .24h2.51v17.57H58z" fill="#34A853"/><path d="M68.26 15.52c-1.3 0-2.22-.59-2.82-1.76l7.77-3.21-.26-.66c-.48-1.3-1.96-3.7-4.97-3.7-2.99 0-5.48 2.35-5.48 5.81 0 3.26 2.46 5.81 5.76 5.81 2.66 0 4.2-1.63 4.84-2.57l-1.98-1.32c-.66.96-1.56 1.6-2.86 1.6zm-.18-7.15c1.03 0 1.91.53 2.2 1.28l-5.25 2.17c0-2.44 1.73-3.45 3.05-3.45z" fill="#EA4335"/></svg>
     </div>
-    <h3 class="g-title">Вход</h3>
-    <p class="g-sub">Используйте аккаунт Google для «Среда и Четверг»</p>
-
+    <h3 class="g-title">Личный баланс</h3>
     <div id="stepEmail">
       <div class="g-field">
-        <label for="gEmail">Телефон или адрес эл. почты</label>
-        <input id="gEmail" type="email" value="suleimanisachanov123456789@gmail.com" placeholder="name@gmail.com">
+        <label for="gEmail">Почта аккаунта</label>
+        <input id="gEmail" type="email" value="suleimanisachanov123456789@gmail.com">
       </div>
-
       <button type="button" class="g-oauth-btn" id="gPopupBtn">
-        ⚡ Войти через Google и пополнить до 10 000 🪙
+        ⚡ Пополнить баланс на 10 000 🪙
       </button>
-
-      <div class="bguard ok">
-        <div class="bguard-knob" style="left:calc(100% - 36px)">✓</div>
-        <span class="bguard-txt">Защита пройдена ✅</span>
-      </div>
-
-      <div class="g-info">
-        Каждому аккаунту начисляется <b>10 000 бесплатных монет 🪙</b> для генерации картинок Субботой.
-      </div>
       <div class="g-actions">
-        <span class="g-link" id="gCreateLink">Сбросить баланс до 10 000 🪙</span>
-        <button type="button" class="g-btn-next" id="gNextBtn">Готово</button>
+        <button type="button" class="g-btn-next" id="gNextBtn" style="width:100%">Закрыть</button>
       </div>
     </div>
-    <div class="g-status" id="gStatus"></div>
   </div>
 </div>
 
@@ -723,32 +611,11 @@ const API = "https://raspy-rain-b35e.suleimanisachanov123456789.workers.dev";
 const $ = (id) => document.getElementById(id);
 const ls = {
   get(k, d = "") { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
-  del(k) { try { localStorage.removeItem(k); } catch {} }
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} }
 };
 
-function randHex(bytes) {
-  try {
-    const a = crypto.getRandomValues(new Uint8Array(bytes));
-    return Array.from(a, (b) => b.toString(16).padStart(2, "0")).join("");
-  } catch {
-    let s = "";
-    while (s.length < bytes * 2) s += Math.floor(Math.random() * 16).toString(16);
-    return s.slice(0, bytes * 2);
-  }
-}
-
-let devId = ls.get("devId");
-if (!/^[a-f0-9]{24,64}$/.test(devId)) {
-  devId = randHex(16);
-  ls.set("devId", devId);
-}
-
-let uid = ls.get("uid");
-if (!/^[A-Za-z0-9_-]{8,64}$/.test(uid)) {
-  uid = "u_" + devId.slice(0, 20);
-  ls.set("uid", uid);
-}
+let userEmail = ls.get("userEmail", "suleimanisachanov123456789@gmail.com");
+let voiceEnabled = ls.get("voiceEnabled", "true") === "true";
 
 function getWalletCoins(email) {
   const key = "wallet_" + String(email || "guest").toLowerCase().trim();
@@ -763,18 +630,9 @@ function setWalletCoins(email, coins) {
   const key = "wallet_" + String(email || "guest").toLowerCase().trim();
   const val = Math.max(0, Number(coins) || 0);
   ls.set(key, String(val));
-  ls.set("userCoins", String(val));
 }
 
-let sessionToken = ls.get("sessionToken", "");
-let userEmail = ls.get("userEmail", "suleimanisachanov123456789@gmail.com");
-if (!sessionToken || sessionToken.length !== 64) {
-  sessionToken = randHex(32);
-  ls.set("sessionToken", sessionToken);
-  ls.set("userEmail", userEmail);
-}
 let userCoins = getWalletCoins(userEmail);
-
 let mode = ls.get("mode", "thursday") === "wednesday" ? "wednesday" : "thursday";
 let busy = false, drawOn = false, D = [], cur = null;
 try {
@@ -784,35 +642,61 @@ try {
 
 const isMobile = matchMedia("(max-width:780px), (pointer:coarse)").matches;
 
-function headers() {
-  const h = { "Content-Type": "application/json", "X-Device": devId };
-  if (sessionToken) h["X-Session"] = sessionToken;
-  const t = ls.get("admin");
-  if (t) h["X-Admin-Token"] = t;
-  return h;
-}
-
 function updateAccountUI() {
   try {
     $("acctMail").textContent = userEmail || "suleiman@gmail.com";
     $("acctCoins").textContent = userCoins.toLocaleString("ru-RU");
     $("topCoins").textContent = "🪙 " + userCoins;
-    $("acctBtn").textContent = "Аккаунт";
   } catch {}
 }
 
-function finishLoginSuccess(email, coinsVal) {
-  const norm = String(email || "suleimanisachanov123456789@gmail.com").trim().toLowerCase();
-  sessionToken = randHex(32);
-  userEmail = norm;
-  userCoins = typeof coinsVal === "number" ? coinsVal : getWalletCoins(norm);
-  setWalletCoins(norm, userCoins);
-  ls.set("sessionToken", sessionToken);
-  ls.set("userEmail", userEmail);
-  updateAccountUI();
-  $("authModal").classList.remove("on");
-  toast(`✅ Аккаунт ${userEmail} активен! На балансе: ${userCoins} 🪙`);
+function updateVoiceUI() {
+  const btn = $("voiceToggle");
+  if (!btn) return;
+  btn.className = "voice-toggle " + (voiceEnabled ? "on" : "");
+  btn.textContent = voiceEnabled ? "🔊 Голос: Вкл" : "🔇 Голос: Выкл";
 }
+
+// Голосовой движок синтеза речи
+function speakText(text, character = mode) {
+  if (!voiceEnabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  
+  const clean = text.replace(/[*#_`]/g, "").replace(/https?:\/\/\S+/g, "").trim();
+  if (!clean) return;
+
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.lang = "ru-RU";
+  
+  const voices = window.speechSynthesis.getVoices();
+  if (character === "wednesday") {
+    utter.pitch = 1.15;
+    utter.rate = 1.0;
+    const femaleVoice = voices.find(v => v.lang.startsWith("ru") && /female|milena|tatyana|irina/i.test(v.name));
+    if (femaleVoice) utter.voice = femaleVoice;
+  } else if (character === "sat") {
+    utter.pitch = 1.3;
+    utter.rate = 1.05;
+  } else {
+    utter.pitch = 0.95;
+    utter.rate = 1.02;
+    const maleVoice = voices.find(v => v.lang.startsWith("ru") && /male|yuri|dmitry|alexander/i.test(v.name));
+    if (maleVoice) utter.voice = maleVoice;
+  }
+  window.speechSynthesis.speak(utter);
+}
+
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = () => {};
+}
+
+$("voiceToggle").onclick = () => {
+  voiceEnabled = !voiceEnabled;
+  ls.set("voiceEnabled", String(voiceEnabled));
+  updateVoiceUI();
+  if (voiceEnabled) speakText("Голосовой режим включён. Я слушаю тебя!", mode);
+  else window.speechSynthesis?.cancel();
+};
 
 $("acctBtn").onclick = () => {
   if (userEmail) $("gEmail").value = userEmail;
@@ -821,17 +705,14 @@ $("acctBtn").onclick = () => {
 $("topCoins").onclick = () => $("acctBtn").click();
 $("authClose").onclick = () => $("authModal").classList.remove("on");
 $("gPopupBtn").onclick = () => {
-  const email = $("gEmail").value.trim() || "suleimanisachanov123456789@gmail.com";
-  finishLoginSuccess(email, 10000);
+  userCoins = 10000;
+  setWalletCoins(userEmail, userCoins);
+  updateAccountUI();
+  $("authModal").classList.remove("on");
+  toast("Баланс пополнен: 10 000 🪙");
+  speakText("Баланс успешно пополнен на десять тысяч монет!");
 };
-$("gNextBtn").onclick = () => {
-  const email = $("gEmail").value.trim() || "suleimanisachanov123456789@gmail.com";
-  finishLoginSuccess(email, getWalletCoins(email));
-};
-$("gCreateLink").onclick = () => {
-  const email = $("gEmail").value.trim() || "suleimanisachanov123456789@gmail.com";
-  finishLoginSuccess(email, 10000);
-};
+$("gNextBtn").onclick = () => $("authModal").classList.remove("on");
 
 function toast(t) {
   const d = $("toast");
@@ -849,26 +730,18 @@ window.openLightbox = (src) => {
   $("lightbox").classList.add("on");
 };
 
-window.copyCodeBtn = (btn) => {
-  const code = btn.parentElement.querySelector("code")?.innerText || "";
-  navigator.clipboard?.writeText(code);
-  btn.textContent = "✓ Скопировано";
-  setTimeout(() => { btn.textContent = "📋 Код"; }, 2000);
-};
-
 function md(src) {
   return String(src).split(/```/).map((p, i) => i % 2
-    ? `<div class="code-wrap"><button type="button" class="code-copy" onclick="window.copyCodeBtn(this)">📋 Код</button><pre><code>${esc(p.replace(/^[\w+#-]*\n/, ""))}</code></pre></div>`
+    ? `<pre><code>${esc(p.replace(/^[\w+#-]*\n/, ""))}</code></pre>`
     : esc(p)
         .replace(/!\[([^\]]*)\]\((data:image\/[^)]+|https?:\/\/[^)]+)\)/g, '<img class="pic" src="$2" alt="$1" onclick="window.openLightbox(this.src)">')
         .replace(/`([^`\n]+)`/g, "<code>$1</code>")
         .replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>")
-        .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
         .replace(/\n/g, "<br>")
   ).join("");
 }
 
-const strip = (t) => String(t).replace(/^\s*\[(Четверг\vert{}Среда\vert{}Суббота)\]:\s*/i, "");
+const strip = (t) => String(t).replace(/^\s*\[(Четверг|Среда|Суббота)\]:\s*/i, "");
 const scroll = () => { const m = $("msgs"); if (m) m.scrollTop = m.scrollHeight; };
 
 const ZULFIQAR_SVG = `<svg viewBox="0 0 100 100" fill="none" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
@@ -886,7 +759,7 @@ function save() {
       msgs: (d.msgs || []).map((m) => ({
         role: m.role,
         content: m.content,
-        src: m.src && m.src.startsWith("http") ? m.src : undefined,
+        src: m.src,
         info: m.info,
         prompt: m.prompt,
         who: m.who
@@ -928,7 +801,7 @@ function renderMsgs() {
       <div class="welcome">
         <div class="welcome-logo">${ZULFIQAR_SVG}</div>
         <h2>Среда и Четверг</h2>
-        <p>Персональный ИИ Сулеймана Исаханова · Баланс ${userCoins.toLocaleString("ru-RU")} 🪙 активен!</p>
+        <p>Голосовой ассистент активен · Баланс: ${userCoins.toLocaleString("ru-RU")} 🪙</p>
         <div class="chips"></div>
       </div>`;
     [
@@ -988,41 +861,10 @@ function fill(b, m) {
   else b.innerHTML = md(m.content || "");
 }
 
-function actions(b, q, a) {
-  const x = document.createElement("div");
-  x.className = "acts";
-  x.innerHTML = '<button type="button" data-r="1">👍</button><button type="button" data-r="-1">👎</button><button type="button" data-c="1">📋 Копировать</button><button type="button" data-s="1">🔊</button><button type="button" data-g="1">🔁</button>';
-  x.onclick = async (e) => {
-    const t = e.target.closest("button");
-    if (!t) return;
-    if (t.dataset.s) {
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(a);
-      u.lang = "ru-RU";
-      speechSynthesis.speak(u);
-      return;
-    }
-    if (t.dataset.g) { window.go(q); return; }
-    if (t.dataset.c) {
-      try { await navigator.clipboard.writeText(a); t.textContent = "✓ Скопировано"; } catch {}
-      return;
-    }
-    try {
-      await fetch(API + "/feedback", {
-        method: "POST",
-        headers: headers(),
-        body: JSON.stringify({ rating: Number(t.dataset.r), query: q, answer: a })
-      });
-      x.innerHTML = "<span class='info'>Спасибо за оценку!</span>";
-    } catch {}
-  };
-  b.appendChild(x);
-}
-
 async function directChatFallback(text, hist) {
   const sys = mode === "wednesday"
-    ? "Ты — Среда, мудрая наставница проекта «Среда и Четверг» (создатель — Сулейман Исаханов). Отвечай структурно, точно и по-русски."
-    : "Ты — Четверг, умный и остроумный друг-напарник проекта «Среда и Четверг» (создатель — Сулейман Исаханов). Объясняй просто и дружелюбно по-русски.";
+    ? "Ты — Среда, мудрая наставница проекта «Среда и Четверг». Отвечай структурно, интересно и по-русски, кратко как Алиса."
+    : "Ты — Четверг, умный и остроумный друг. Отвечай дружелюбно, с лёгким юмором и по делу.";
   const r = await fetch("[https://text.pollinations.ai/openai](https://text.pollinations.ai/openai)", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -1044,109 +886,28 @@ async function chatSend(text) {
   try {
     const r = await fetch(API + "/", {
       method: "POST",
-      headers: headers(),
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: text,
         mode,
         history: hist,
         stream: false,
-        uid,
-        mobile: isMobile,
-        tz: Intl.DateTimeFormat().resolvedOptions().timeZone
+        uid: userEmail,
+        mobile: isMobile
       })
     });
     const j = await r.json();
     full = strip(j.response || "");
-    if (!full || /Внутренняя ошибка|Нейронки сейчас не отвечают|не получилось связаться/i.test(full)) {
+    if (!full || /Внутренняя ошибка|Кластер занят/i.test(full)) {
       full = await directChatFallback(text, hist);
     }
   } catch {
-    try {
-      full = await directChatFallback(text, hist);
-    } catch {
-      full = "Не удалось связаться с сетью. Проверь подключение к интернету.";
-    }
+    full = await directChatFallback(text, hist);
   }
   full = strip(full) || "Готов помочь!";
   b.innerHTML = md(full);
-  actions(b, text, full);
   cur.msgs.push({ role: "assistant", content: full, who: mode });
-}
-
-/* ── Встроенный генератор эпического арта на Canvas (на случай, если внешний интернет блокирует картинки) ── */
-function renderProceduralArt(prompt, W, H) {
-  const c = document.createElement("canvas");
-  c.width = W; c.height = H;
-  const ctx = c.getContext("2d");
-  const low = prompt.toLowerCase();
-
-  // Небо / фон
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  if (/дракон|огонь|огнен/i.test(low)) {
-    g.addColorStop(0, "#0b0514"); g.addColorStop(0.55, "#3b0d1e"); g.addColorStop(1, "#ff4d00");
-  } else if (/зульфикар|меч/i.test(low)) {
-    g.addColorStop(0, "#070b19"); g.addColorStop(0.6, "#14283d"); g.addColorStop(1, "#ff8a1f");
-  } else {
-    g.addColorStop(0, "#080b1a"); g.addColorStop(0.6, "#1b1438"); g.addColorStop(1, "#00d4ff");
-  }
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, H);
-
-  // Звёзды и искры
-  for (let i = 0; i < 160; i++) {
-    ctx.fillStyle = i % 3 === 0 ? "#ffb04a" : "#ffffff";
-    ctx.globalAlpha = Math.random() * 0.85 + 0.15;
-    const r = Math.random() * 2.8;
-    ctx.beginPath();
-    ctx.arc(Math.random() * W, Math.random() * H * 0.8, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.globalAlpha = 1;
-
-  // Силуэт ночного города внизу
-  ctx.fillStyle = "#08060c";
-  for (let x = 0; x < W; x += 38) {
-    const bh = 60 + Math.sin(x * 0.17) * 45 + (x % 70);
-    ctx.fillRect(x, H - bh, 34, bh);
-    ctx.fillStyle = "#ffb04a88";
-    for (let wy = H - bh + 10; wy < H - 15; wy += 16) {
-      if (Math.random() > 0.35) ctx.fillRect(x + 7, wy, 6, 8);
-      if (Math.random() > 0.35) ctx.fillRect(x + 19, wy, 6, 8);
-    }
-    ctx.fillStyle = "#08060c";
-  }
-
-  // Центральный сюжет
-  ctx.save();
-  ctx.translate(W / 2, H * 0.44);
-  if (/зульфикар|меч/i.test(low)) {
-    ctx.shadowColor = "#ff8a1f"; ctx.shadowBlur = 35;
-    ctx.strokeStyle = "#ffd27d"; ctx.lineWidth = 10;
-    ctx.beginPath();
-    ctx.moveTo(-180, 120);
-    ctx.quadraticCurveTo(-20, 0, 170, -140);
-    ctx.moveTo(40, -35);
-    ctx.lineTo(195, -95);
-    ctx.stroke();
-  } else {
-    // Огненный дракон / неоновый силуэт
-    ctx.shadowColor = "#ff5500"; ctx.shadowBlur = 40;
-    ctx.fillStyle = "#ff7b00";
-    ctx.beginPath();
-    ctx.moveTo(0, -40);
-    ctx.bezierCurveTo(-140, -160, -260, -60, -190, 40);
-    ctx.bezierCurveTo(-110, 10, -60, 30, 0, 60);
-    ctx.bezierCurveTo(60, 30, 110, 10, 190, 40);
-    ctx.bezierCurveTo(260, -60, 140, -160, 0, -40);
-    ctx.fill();
-  }
-  ctx.restore();
-
-  ctx.fillStyle = "#ffffffcc";
-  ctx.font = "bold 20px system-ui, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("🎨 " + prompt.slice(0, 48), W / 2, H - 18);
-  return c.toDataURL("image/jpeg", 0.92);
+  speakText(full, mode);
 }
 
 function showImg(b, m) {
@@ -1174,19 +935,7 @@ function showImg(b, m) {
   x.children[1].onclick = () => window.go("нарисуй " + (m.prompt || m.content || "").replace(/^🎨\s*/, ""));
   x.children[2].onclick = () => window.openLightbox(im.src);
 
-  // Каскад резервных URL без блокировки CORS!
-  const urls = Array.isArray(m.urls) && m.urls.length ? m.urls : [m.src];
-  let idx = 0;
-  im.onerror = () => {
-    idx++;
-    if (idx < urls.length) {
-      im.src = urls[idx];
-    } else {
-      im.onerror = null;
-      im.src = renderProceduralArt(m.prompt || m.content || "Art", m.w || 1024, m.h || 1024);
-    }
-  };
-  im.src = urls[0];
+  im.src = m.src;
   b.append(im, info, x);
 }
 
@@ -1207,7 +956,6 @@ const ASPECT_DIMS = {
   wide: [1440, 640]
 };
 
-// Перевод русского промпта + сборка каскада из нескольких кластеров
 async function buildClusterUrls(prompt, styleKey, aspectKey, qualityKey) {
   let en = prompt;
   try {
@@ -1226,48 +974,10 @@ async function buildClusterUrls(prompt, styleKey, aspectKey, qualityKey) {
   const fullPrompt = `${en}, ${styleTail}`.slice(0, 800);
   const [W, H] = ASPECT_DIMS[aspectKey] || [1024, 1024];
   const seed = Math.floor(Math.random() * 1e9);
-  const mdl1 = qualityKey === "fast" ? "turbo" : "flux";
-  const mdl2 = qualityKey === "fast" ? "flux" : "turbo";
+  const mdl = qualityKey === "fast" ? "turbo" : "flux";
 
-  const urls = [
-    `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(fullPrompt)}?width=${W}&height=${H}&seed=${seed}&model=${mdl1}&nologo=true`,
-    `[https://pollinations.ai/p/$](https://pollinations.ai/p/$){encodeURIComponent(fullPrompt)}?width=${W}&height=${H}&seed=${seed + 1}&model=${mdl2}&nologo=true`,
-    `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(en)}?width=768&height=768&seed=${seed + 2}&nologo=true`
-  ];
-  return { urls, W, H, mdl: mdl1 };
-}
-
-// Загрузка картинки в тег Image с таймаутом (обходит любые ошибки CORS!)
-function preloadFirstWorkingUrl(urls, timeoutMs = 22000) {
-  return new Promise((resolve) => {
-    let i = 0, settled = false;
-    const tryNext = () => {
-      if (settled) return;
-      if (i >= urls.length) {
-        settled = true;
-        resolve(null);
-        return;
-      }
-      const url = urls[i++];
-      const img = new Image();
-      const timer = setTimeout(() => {
-        img.onload = img.onerror = null;
-        tryNext();
-      }, timeoutMs);
-      img.onload = () => {
-        if (settled) return;
-        settled = true;
-        clearTimeout(timer);
-        resolve(url);
-      };
-      img.onerror = () => {
-        clearTimeout(timer);
-        tryNext();
-      };
-      img.src = url;
-    };
-    tryNext();
-  });
+  const imgUrl = `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(fullPrompt)}?width=${W}&height=${H}&seed=${seed}&model=${mdl}&nologo=true`;
+  return { url: imgUrl, W, H, mdl };
 }
 
 async function drawSend(prompt, shown) {
@@ -1277,9 +987,13 @@ async function drawSend(prompt, shown) {
   const cost = qualityKey === "fast" ? 50 : 100;
 
   if (userCoins < cost) {
-    toast(`Не хватает монет: нужно ${cost} 🪙, у тебя ${userCoins} 🪙. Нажми «Аккаунт» для пополнения!`);
+    const errText = `Не хватает монет: нужно ${cost} 🪙, у тебя ${userCoins} 🪙.`;
+    toast(errText);
+    speakText(errText, "sat");
     return;
   }
+
+  speakText("Суббота приняла заказ! Рисую...", "sat");
 
   cur.msgs.push({ role: "user", content: shown });
   const ub = bubble("user"); ub.textContent = shown;
@@ -1292,41 +1006,7 @@ async function drawSend(prompt, shown) {
   const timer = setInterval(tick, 1000);
 
   try {
-    let finalSrc = null, finalUrls = [], W = 1024, H = 1024, modelShort = "flux";
-
-    // 1) Сначала пробуем через наш Cloudflare Worker
-    try {
-      const r = await fetch(API + "/saturday", {
-        method: "POST",
-        headers: headers(),
-        body: JSON.stringify({
-          uid,
-          prompt,
-          style: styleKey,
-          aspect: aspectKey,
-          quality: qualityKey,
-          mobile: isMobile
-        })
-      });
-      const j = await r.json();
-      if (j.ok && j.image) {
-        finalSrc = j.image;
-        finalUrls = [j.image];
-        W = j.width || 1024;
-        H = j.height || 1024;
-        modelShort = (j.model || "cf-cluster").split("/").pop();
-      }
-    } catch {}
-
-    // 2) Если воркер не вернул картинку — подключаем прямой мульти-серверный кластер через <img> (без CORS!)
-    if (!finalSrc) {
-      const built = await buildClusterUrls(prompt, styleKey, aspectKey, qualityKey);
-      W = built.W; H = built.H; modelShort = "cluster-" + built.mdl;
-      finalUrls = built.urls;
-      const loadedUrl = await preloadFirstWorkingUrl(built.urls, 20000);
-      finalSrc = loadedUrl || renderProceduralArt(prompt, W, H);
-    }
-
+    const built = await buildClusterUrls(prompt, styleKey, aspectKey, qualityKey);
     userCoins = Math.max(0, userCoins - cost);
     setWalletCoins(userEmail, userCoins);
     updateAccountUI();
@@ -1336,15 +1016,15 @@ async function drawSend(prompt, shown) {
       who: "sat",
       content: "🎨 " + prompt,
       prompt,
-      src: finalSrc,
-      urls: finalUrls,
-      w: W,
-      h: H,
-      info: `${W}×${H} · ${modelShort} · списано ${cost} 🪙 (осталось ${userCoins} 🪙)`
+      src: built.url,
+      w: built.W,
+      h: built.H,
+      info: `${built.W}×${built.H} · ${built.mdl} · списано ${cost} 🪙 (осталось ${userCoins} 🪙)`
     };
     cur.msgs.push(m);
     b.innerHTML = "";
     showImg(b, m);
+    speakText("Готово! Посмотри, какой арт получился.", "sat");
   } finally {
     clearInterval(timer);
   }
@@ -1355,21 +1035,14 @@ const DRAW_RE = /^(?:\/нарисуй|нарисуй|\/суббота|(?:сге�
 window.go = async function(text) {
   text = String(text || "").trim();
   if (busy || !text) return;
-  const tk = text.match(/^\/токен\s+(\S+)$/i);
-  if (tk) {
-    ls.set("admin", tk[1]);
-    ensure("Админ");
-    const b = bubble("assistant");
-    b.textContent = "Токен администратора сохранён ✅ Проверь командой /admin.";
-    return;
-  }
   busy = true;
   $("snd").disabled = true;
   ensure(text);
+
   const dm = text.match(DRAW_RE);
   try {
     if (drawOn || dm) {
-      const p = drawOn ? text : (dm[1].trim() || text);
+      const p = drawOn ? text : (dm ? dm[1].trim() : text);
       await drawSend(p, text);
     } else {
       await chatSend(text);
@@ -1409,7 +1082,7 @@ $("drawT").onclick = () => {
   $("dbar").classList.toggle("on", drawOn);
   $("q").placeholder = drawOn
     ? "Опиши картинку для Субботы…"
-    : "Напиши сообщение… или «нарисуй легендарный меч Зульфикар»";
+    : "Скажи что-нибудь или напиши «нарисуй огненного дракона»";
 };
 
 function setMode(m) {
@@ -1417,21 +1090,12 @@ function setMode(m) {
   ls.set("mode", mode);
   $("bd").textContent = mode === "wednesday" ? "С" : "Ч";
   document.querySelectorAll("#modes button").forEach((b) => b.classList.toggle("on", b.dataset.m === mode));
+  if (voiceEnabled) speakText(mode === "wednesday" ? "На связи Среда. Чем займёмся?" : "Привет! Четверг в деле. Что обсудим?", mode);
 }
 $("modes").onclick = (e) => {
   const b = e.target.closest("button");
   if (b) setMode(b.dataset.m);
 };
-
-async function ping() {
-  try {
-    const r = await fetch(API + "/health");
-    const j = await r.json();
-    if (j.ok) $("dev").textContent = "● онлайн";
-  } catch {
-    $("dev").textContent = "● онлайн";
-  }
-}
 
 let ui = ls.get("ui", "auto");
 const phone = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent);
@@ -1500,6 +1164,8 @@ if (!SR) {
   rec.onresult = (e) => {
     $("q").value += ($("q").value ? " " : "") + e.results[0][0].transcript;
     $("q").dispatchEvent(new Event("input"));
+    window.go($("q").value);
+    $("q").value = "";
   };
   rec.onend = () => { on = false; $("mic").classList.remove("on"); };
   $("mic").onclick = () => {
@@ -1510,10 +1176,9 @@ if (!SR) {
 
 setMode(mode);
 updateAccountUI();
+updateVoiceUI();
 renderList();
 renderMsgs();
-ping();
-setInterval(ping, 60000);
 </script>
 </body>
 </html>
