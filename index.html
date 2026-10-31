@@ -3,9 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Среда и Четверг</title>
+<title>Среда и Четверг — Персональный ИИ</title>
+<meta name="description" content="Мультиязычный голосовой ИИ-ассистент и генератор артов Суббота. Создатель: Исаханов Сулейман.">
 <meta name="theme-color" content="#14110e">
 <meta name="color-scheme" content="dark">
+
+<!-- Open Graph для красивого превью в соцсетях и мессенджерах -->
+<meta property="og:title" content="Среда и Четверг — ИИ Ассистент">
+<meta property="og:description" content="Умный голосовой помощник и генератор изображений Суббота.">
+<meta property="og:type" content="website">
+
 <style>
 :root{
   color-scheme:dark;
@@ -40,6 +47,8 @@ aside{
   display:flex;
   flex-direction:column;
   min-height:0;
+  transition:transform .25s ease;
+  z-index:30;
 }
 .brand{
   display:flex;
@@ -180,6 +189,7 @@ aside{
 .tools button:hover,.top .uib:hover{border-color:var(--or)}
 .tools .uib{flex:1 1 100%;font-weight:700;color:var(--or)}
 .voice-toggle.on{border-color:var(--ok);color:var(--ok)}
+.lang-btn{font-weight:800;color:var(--or)}
 
 section{
   display:flex;
@@ -282,13 +292,15 @@ section{
 .me .bub{background:#2b2012;border-color:#5a3d17}
 .bub img.pic{
   display:block;
-  max-width:100%;
-  max-height:520px;
+  width:100%;
+  max-height:560px;
   border-radius:14px;
   border:1px solid var(--line);
   margin:6px 0;
   cursor:zoom-in;
-  box-shadow:0 8px 28px #0008;
+  box-shadow:0 8px 30px rgba(0,0,0,.6);
+  background:#14110e;
+  object-fit:cover;
 }
 .info{color:var(--mut);font-size:13px;margin:6px 0}
 .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
@@ -305,7 +317,6 @@ section{
 .acts button:hover,.acts a:hover{border-color:var(--or);color:var(--tx)}
 .dots::after{content:"●●●";letter-spacing:3px;color:var(--or);animation:b 1s infinite}
 @keyframes b{50%{opacity:.2}}
-.err{color:var(--bad)}
 
 .comp{
   padding:10px 16px 14px;
@@ -465,7 +476,7 @@ section{
   cursor:zoom-out;
 }
 #lightbox.on{display:grid}
-#lightbox img{max-width:95vw;max-height:90vh;border-radius:16px;border:1px solid var(--or)}
+#lightbox img{max-width:95vw;max-height:90vh;border-radius:16px;border:1px solid var(--or);object-fit:contain}
 #toast{
   position:fixed;
   left:50%;
@@ -485,35 +496,54 @@ section{
 }
 #toast.on{opacity:1;transform:translate(-50%,0)}
 
-html.m body{grid-template-columns:1fr}
-html.m aside{
-  position:fixed;
-  inset:0 auto 0 0;
-  width:285px;
-  max-width:86vw;
-  z-index:20;
-  transform:translateX(-102%);
-  transition:transform .25s ease;
+@media (max-width: 820px) {
+  body { grid-template-columns: 1fr; }
+  aside {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 290px;
+    max-width: 85vw;
+    transform: translateX(-102%);
+    box-shadow: none;
+  }
+  body.open aside {
+    transform: none;
+    box-shadow: 0 0 60px #000;
+  }
+  body.open .ov {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.7);
+    z-index: 25;
+  }
+  .top { display: flex; }
+  #msgs { padding: 14px 10px; }
+  .hint { display: none; }
 }
-html.m body.open aside{transform:none;box-shadow:0 0 60px #000}
-html.m body.open .ov{display:block;position:fixed;inset:0;background:#0008;z-index:10}
-html.m .top{display:flex}
-html.m #msgs{padding:14px 10px}
-html.m .hint{display:none}
+
+html.frame body {
+  width: 400px;
+  height: min(850px, calc(100dvh - 32px));
+  margin: 16px auto;
+  border: 10px solid #050505;
+  border-radius: 44px;
+  box-shadow: 0 30px 90px #000, 0 0 0 2px #2a2a2a;
+}
 </style>
 </head>
 <body>
 <aside>
   <div class="brand">
     <div class="badge" id="bd">Ч</div>
-    <h1>Среда и Четверг</h1>
+    <h1 id="brandTitle">Среда и Четверг</h1>
     <span class="dev" id="dev" title="Статус сервера">● онлайн</span>
   </div>
 
   <div class="acct-box">
     <div class="acct-info">
       <div class="acct-mail" id="acctMail">suleiman@gmail.com</div>
-      <div class="acct-coins">🪙 <span id="acctCoins">10 000</span> монет</div>
+      <div class="acct-coins">🪙 <span id="acctCoins">10 000</span> <span id="coinsWord">монет</span></div>
     </div>
     <button type="button" class="acct-btn" id="acctBtn">Аккаунт</button>
   </div>
@@ -523,13 +553,14 @@ html.m .hint{display:none}
   <div id="list"></div>
   <div class="foot">
     <div class="seg" id="modes">
-      <button type="button" data-m="wednesday">Среда</button>
-      <button type="button" data-m="thursday" class="on">Четверг</button>
+      <button type="button" data-m="wednesday" id="modeWedBtn">Среда</button>
+      <button type="button" data-m="thursday" class="on" id="modeThuBtn">Четверг</button>
     </div>
     <div class="tools">
-      <button type="button" class="uib">📱 Мобильная версия</button>
-      <button type="button" id="voiceToggle" class="voice-toggle on" title="Голос ассистента">🔊 Голос: Вкл</button>
-      <button type="button" id="acc" title="Сменить цвет темы">🎨</button>
+      <button type="button" class="uib" id="uiToggleBtn">📱 Мобильный вид</button>
+      <button type="button" id="langBtn" class="lang-btn" title="Сменить язык">🌐 RU</button>
+      <button type="button" id="voiceToggle" class="voice-toggle on" title="Голос ассистента">🔊 Вкл</button>
+      <button type="button" id="acc" title="Цвет темы">🎨</button>
       <button type="button" id="fa" title="Шрифт меньше">A−</button>
       <button type="button" id="fb" title="Шрифт больше">A+</button>
       <button type="button" id="exp" title="Скачать историю">⬇ .txt</button>
@@ -544,7 +575,7 @@ html.m .hint{display:none}
     <button type="button" id="menu" aria-label="Меню">☰</button>
     <b id="ttl">Среда и Четверг</b>
     <span class="top-coins" id="topCoins">🪙 10000</span>
-    <button type="button" class="uib">🖥 ПК</button>
+    <button type="button" class="uib" id="topUiBtn">🖥 ПК</button>
   </div>
   <div id="msgs">
     <div class="wrap" id="wrap"></div>
@@ -567,17 +598,17 @@ html.m .hint{display:none}
         <option value="wide">Панорама</option>
       </select>
       <select id="sq">
-        <option value="fast">⚡ Кластер (Без 4006 · 50 🪙)</option>
-        <option value="hd">🎨 HD Качество (100 🪙)</option>
+        <option value="fast">⚡ HD Turbo (50 🪙)</option>
+        <option value="hd">🎨 Ultra HD Flux (100 🪙)</option>
       </select>
     </div>
     <form class="box" id="form">
       <button type="button" class="ic" id="drawT" title="Режим рисования (Суббота)">🎨</button>
       <button type="button" class="ic" id="mic" title="Голосовой ввод">🎤</button>
-      <textarea id="q" rows="1" placeholder="Скажи что-нибудь или напиши «нарисуй огненного дракона»"></textarea>
+      <textarea id="q" rows="1" placeholder="Напиши сообщение или «нарисуй легендарный меч Зульфикар»"></textarea>
       <button type="submit" class="ic snd" id="snd" title="Отправить">➤</button>
     </form>
-    <div class="hint" id="hint">/помощь · Нажми 🔊 Голос, чтобы ассистент озвучивал ответы вслух как Алиса</div>
+    <div class="hint" id="hint">/помощь · Нажми 🔊, чтобы ассистент озвучивал ответы вслух как Алиса</div>
   </div>
 </section>
 
@@ -587,10 +618,10 @@ html.m .hint{display:none}
     <div class="g-logo">
       <svg width="75" height="24" viewBox="0 0 75 24"><path d="M9.24 8.19v2.46h5.88c-.18 1.38-.64 2.39-1.34 3.1-.86.86-2.2 1.8-4.54 1.8-3.62 0-6.45-2.92-6.45-6.54s2.83-6.54 6.45-6.54c1.95 0 3.38.77 4.43 1.76L15.4 2.5C13.94 1.08 11.98 0 9.24 0 4.28 0 .11 4.04.11 9s4.17 9 9.13 9c2.68 0 4.7-.88 6.28-2.52 1.62-1.62 2.13-3.91 2.13-5.75 0-.57-.04-1.1-.13-1.54H9.24z" fill="#4285F4"/><path d="M25 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52 0-2.09 1.52-3.52 3.28-3.52s3.28 1.43 3.28 3.52c0 2.07-1.52 3.52-3.28 3.52z" fill="#EA4335"/><path d="M53.58 7.49h-.09c-.57-.68-1.67-1.3-3.06-1.3C47.53 6.19 45 8.72 45 12c0 3.26 2.53 5.81 5.43 5.81 1.39 0 2.49-.62 3.06-1.32h.09v.81c0 2.22-1.19 3.41-3.1 3.41-1.56 0-2.53-1.12-2.93-2.07l-2.22.92c.64 1.54 2.33 3.43 5.15 3.43 2.99 0 5.52-1.76 5.52-6.05V6.49h-2.42v1zm-2.93 8.03c-1.76 0-3.1-1.5-3.1-3.52 0-2.05 1.34-3.52 3.1-3.52 1.74 0 3.1 1.5 3.1 3.54.01 2.03-1.36 3.5-3.1 3.5z" fill="#4285F4"/><path d="M38 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52 0-2.09 1.52-3.52 3.28-3.52s3.28 1.43 3.28 3.52c0 2.07-1.52 3.52-3.28 3.52z" fill="#FBBC05"/><path d="M58 .24h2.51v17.57H58z" fill="#34A853"/><path d="M68.26 15.52c-1.3 0-2.22-.59-2.82-1.76l7.77-3.21-.26-.66c-.48-1.3-1.96-3.7-4.97-3.7-2.99 0-5.48 2.35-5.48 5.81 0 3.26 2.46 5.81 5.76 5.81 2.66 0 4.2-1.63 4.84-2.57l-1.98-1.32c-.66.96-1.56 1.6-2.86 1.6zm-.18-7.15c1.03 0 1.91.53 2.2 1.28l-5.25 2.17c0-2.44 1.73-3.45 3.05-3.45z" fill="#EA4335"/></svg>
     </div>
-    <h3 class="g-title">Личный баланс</h3>
+    <h3 class="g-title" id="authTitle">Личный баланс</h3>
     <div id="stepEmail">
       <div class="g-field">
-        <label for="gEmail">Почта аккаунта</label>
+        <label for="gEmail" id="authEmailLabel">Почта аккаунта</label>
         <input id="gEmail" type="email" value="suleimanisachanov123456789@gmail.com">
       </div>
       <button type="button" class="g-oauth-btn" id="gPopupBtn">
@@ -613,6 +644,84 @@ const ls = {
   get(k, d = "") { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch {} }
 };
+
+const I18N = {
+  ru: {
+    brand: "Среда и Четверг",
+    newb: "+ Новый диалог",
+    srch: "🔍 Поиск по диалогам",
+    wed: "Среда",
+    thu: "Четверг",
+    acct: "Аккаунт",
+    coins: "монет",
+    qPlaceholder: "Напиши сообщение или «нарисуй огненного дракона»",
+    drawPlaceholder: "Опиши картинку для Субботы…",
+    hint: "/помощь · Нажми 🔊, чтобы ассистент озвучивал ответы вслух как Алиса",
+    orderAccepted: "Суббота приняла заказ! Рисую настоящий арт...",
+    artDone: "Готово! Посмотри, какой арт получился.",
+    satIntro: "Персональный ИИ · Баланс",
+    quickChips: [
+      ["⚔️ Нарисуй меч Зульфикар", "нарисуй легендарный меч Зульфикар в неоновом стиле"],
+      ["🐉 Нарисуй дракона", "нарисуй огненного дракона над ночным городом"],
+      ["🌦 Погода сейчас", "какая погода сегодня?"],
+      ["💻 Помоги с кодом", "Напиши красивый скрипт таймера на JavaScript"],
+      ["📚 Кто такой Эйнштейн", "Кто такой Альберт Эйнштейн"],
+      ["🔐 Пароль", "/пароль 16"],
+      ["😄 Шутка", "/шутка"]
+    ]
+  },
+  en: {
+    brand: "Wednesday & Thursday",
+    newb: "+ New Chat",
+    srch: "🔍 Search chats",
+    wed: "Wednesday",
+    thu: "Thursday",
+    acct: "Account",
+    coins: "coins",
+    qPlaceholder: "Type a message or 'draw a fire dragon'...",
+    drawPlaceholder: "Describe your image for Saturday AI...",
+    hint: "/help · Toggle 🔊 to hear voice replies out loud like Alice / Siri",
+    orderAccepted: "Saturday accepted your prompt! Generating artwork...",
+    artDone: "Finished! Check out your new artwork.",
+    satIntro: "Personal AI Assistant · Balance",
+    quickChips: [
+      ["⚔️ Draw Zulfiqar Sword", "draw legendary sword Zulfiqar in epic glowing neon style"],
+      ["🐉 Draw Dragon", "draw majestic fire dragon flying over a futuristic neon city at night"],
+      ["🌦 Weather", "what is the weather today?"],
+      ["💻 Code Help", "Write a clean timer script in JavaScript"],
+      ["📚 Who is Einstein", "Who is Albert Einstein?"],
+      ["🔐 Password", "/пароль 16"],
+      ["😄 Joke", "/шутка"]
+    ]
+  },
+  de: {
+    brand: "Mittwoch & Donnerstag",
+    newb: "+ Neuer Dialog",
+    srch: "🔍 Dialoge durchsuchen",
+    wed: "Mittwoch",
+    thu: "Donnerstag",
+    acct: "Konto",
+    coins: "Münzen",
+    qPlaceholder: "Schreibe eine Nachricht oder «zeichne einen Drachen»...",
+    drawPlaceholder: "Beschreibe dein Bild für Samstag KI...",
+    hint: "/hilfe · Drücke 🔊, um Sprachausgabe wie bei Alice zu aktivieren",
+    orderAccepted: "Samstag hat den Auftrag angenommen! Zeichne dein Bild...",
+    artDone: "Fertig! Schau dir das Bild an.",
+    satIntro: "Persönlicher KI-Assistent · Guthaben",
+    quickChips: [
+      ["⚔️ Zeichne Zulfiqar Schwert", "zeichne das legendäre Schwert Zulfiqar im Neon-Stil"],
+      ["🐉 Zeichne Drachen", "zeichne einen Feuerdrachen über einer nächtlichen Stadt"],
+      ["🌦 Wetter", "wie ist das Wetter heute?"],
+      ["💻 Code-Hilfe", "Schreibe ein JavaScript-Timer-Skript"],
+      ["📚 Wer ist Einstein", "Wer ist Albert Einstein?"],
+      ["🔐 Passwort", "/пароль 16"],
+      ["😄 Witz", "/шутка"]
+    ]
+  }
+};
+
+let currentLang = ls.get("lang", "ru");
+if (!I18N[currentLang]) currentLang = "ru";
 
 let userEmail = ls.get("userEmail", "suleimanisachanov123456789@gmail.com");
 let voiceEnabled = ls.get("voiceEnabled", "true") === "true";
@@ -640,12 +749,35 @@ try {
   if (Array.isArray(parsed)) D = parsed.filter((x) => x && typeof x === "object" && Array.isArray(x.msgs));
 } catch { D = []; }
 
-const isMobile = matchMedia("(max-width:780px), (pointer:coarse)").matches;
+function applyLanguage() {
+  const t = I18N[currentLang];
+  $("brandTitle").textContent = t.brand;
+  $("ttl").textContent = t.brand;
+  $("newb").textContent = t.newb;
+  $("srch").placeholder = t.srch;
+  $("modeWedBtn").textContent = t.wed;
+  $("modeThuBtn").textContent = t.thu;
+  $("acctBtn").textContent = t.acct;
+  $("coinsWord").textContent = t.coins;
+  $("hint").textContent = t.hint;
+  $("langBtn").textContent = "🌐 " + currentLang.toUpperCase();
+  $("q").placeholder = drawOn ? t.drawPlaceholder : t.qPlaceholder;
+  renderMsgs();
+}
+
+$("langBtn").onclick = () => {
+  const list = ["ru", "en", "de"];
+  const next = list[(list.indexOf(currentLang) + 1) % list.length];
+  currentLang = next;
+  ls.set("lang", next);
+  applyLanguage();
+  toast("Language: " + next.toUpperCase());
+};
 
 function updateAccountUI() {
   try {
     $("acctMail").textContent = userEmail || "suleiman@gmail.com";
-    $("acctCoins").textContent = userCoins.toLocaleString("ru-RU");
+    $("acctCoins").textContent = userCoins.toLocaleString(currentLang === "de" ? "de-DE" : currentLang === "en" ? "en-US" : "ru-RU");
     $("topCoins").textContent = "🪙 " + userCoins;
   } catch {}
 }
@@ -654,10 +786,9 @@ function updateVoiceUI() {
   const btn = $("voiceToggle");
   if (!btn) return;
   btn.className = "voice-toggle " + (voiceEnabled ? "on" : "");
-  btn.textContent = voiceEnabled ? "🔊 Голос: Вкл" : "🔇 Голос: Выкл";
+  btn.textContent = voiceEnabled ? "🔊 Вкл" : "🔇 Выкл";
 }
 
-// Голосовой движок синтеза речи
 function speakText(text, character = mode) {
   if (!voiceEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
@@ -666,35 +797,31 @@ function speakText(text, character = mode) {
   if (!clean) return;
 
   const utter = new SpeechSynthesisUtterance(clean);
-  utter.lang = "ru-RU";
+  utter.lang = currentLang === "de" ? "de-DE" : currentLang === "en" ? "en-US" : "ru-RU";
   
   const voices = window.speechSynthesis.getVoices();
   if (character === "wednesday") {
     utter.pitch = 1.15;
     utter.rate = 1.0;
-    const femaleVoice = voices.find(v => v.lang.startsWith("ru") && /female|milena|tatyana|irina/i.test(v.name));
-    if (femaleVoice) utter.voice = femaleVoice;
+    const female = voices.find(v => v.lang.startsWith(currentLang) && /female|milena|tatyana|irina|anna|marlene|samantha/i.test(v.name));
+    if (female) utter.voice = female;
   } else if (character === "sat") {
-    utter.pitch = 1.3;
+    utter.pitch = 1.25;
     utter.rate = 1.05;
   } else {
     utter.pitch = 0.95;
     utter.rate = 1.02;
-    const maleVoice = voices.find(v => v.lang.startsWith("ru") && /male|yuri|dmitry|alexander/i.test(v.name));
-    if (maleVoice) utter.voice = maleVoice;
+    const male = voices.find(v => v.lang.startsWith(currentLang) && /male|yuri|dmitry|alexander|david|stefan/i.test(v.name));
+    if (male) utter.voice = male;
   }
   window.speechSynthesis.speak(utter);
-}
-
-if (window.speechSynthesis) {
-  window.speechSynthesis.onvoiceschanged = () => {};
 }
 
 $("voiceToggle").onclick = () => {
   voiceEnabled = !voiceEnabled;
   ls.set("voiceEnabled", String(voiceEnabled));
   updateVoiceUI();
-  if (voiceEnabled) speakText("Голосовой режим включён. Я слушаю тебя!", mode);
+  if (voiceEnabled) speakText(currentLang === "de" ? "Sprachmodus aktiviert!" : currentLang === "en" ? "Voice mode enabled!" : "Голосовой режим включён!");
   else window.speechSynthesis?.cancel();
 };
 
@@ -709,8 +836,8 @@ $("gPopupBtn").onclick = () => {
   setWalletCoins(userEmail, userCoins);
   updateAccountUI();
   $("authModal").classList.remove("on");
-  toast("Баланс пополнен: 10 000 🪙");
-  speakText("Баланс успешно пополнен на десять тысяч монет!");
+  toast("Баланс: 10 000 🪙");
+  speakText(currentLang === "de" ? "Guthaben aufgeladen!" : currentLang === "en" ? "Balance recharged!" : "Баланс пополнен на десять тысяч монет!");
 };
 $("gNextBtn").onclick = () => $("authModal").classList.remove("on");
 
@@ -741,7 +868,7 @@ function md(src) {
   ).join("");
 }
 
-const strip = (t) => String(t).replace(/^\s*\[(Четверг|Среда|Суббота)\]:\s*/i, "");
+const strip = (t) => String(t).replace(/^\s*\[(Четверг|Среда|Суббота|Wednesday|Thursday|Mittwoch|Donnerstag)\]:\s*/i, "");
 const scroll = () => { const m = $("msgs"); if (m) m.scrollTop = m.scrollHeight; };
 
 const ZULFIQAR_SVG = `<svg viewBox="0 0 100 100" fill="none" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
@@ -796,26 +923,19 @@ function renderMsgs() {
   const w = $("wrap");
   if (!w) return;
   w.innerHTML = "";
+  const t = I18N[currentLang];
   if (!cur || !Array.isArray(cur.msgs) || !cur.msgs.length) {
     w.innerHTML = `
       <div class="welcome">
         <div class="welcome-logo">${ZULFIQAR_SVG}</div>
-        <h2>Среда и Четверг</h2>
-        <p>Голосовой ассистент активен · Баланс: ${userCoins.toLocaleString("ru-RU")} 🪙</p>
+        <h2>${t.brand}</h2>
+        <p>${t.satIntro}: ${userCoins.toLocaleString(currentLang === "de" ? "de-DE" : "ru-RU")} 🪙</p>
         <div class="chips"></div>
       </div>`;
-    [
-      ["⚔️ Нарисуй меч Зульфикар", "нарисуй легендарный меч Зульфикар в неоновом стиле"],
-      ["🐉 Нарисуй дракона", "нарисуй огненного дракона над ночным городом"],
-      ["🌦 Погода сейчас", "какая погода сегодня?"],
-      ["💻 Помоги с кодом", "Напиши красивый скрипт таймера на JavaScript"],
-      ["📚 Кто такой Эйнштейн", "Кто такой Альберт Эйнштейн"],
-      ["🔐 Сгенерируй пароль", "/пароль 16"],
-      ["😄 Шутка", "/шутка"]
-    ].forEach(([t, q]) => {
+    t.quickChips.forEach(([lbl, q]) => {
       const b = document.createElement("button");
       b.type = "button";
-      b.textContent = t;
+      b.textContent = lbl;
       b.onclick = () => window.go(q);
       w.querySelector(".chips").appendChild(b);
     });
@@ -863,8 +983,8 @@ function fill(b, m) {
 
 async function directChatFallback(text, hist) {
   const sys = mode === "wednesday"
-    ? "Ты — Среда, мудрая наставница проекта «Среда и Четверг». Отвечай структурно, интересно и по-русски, кратко как Алиса."
-    : "Ты — Четверг, умный и остроумный друг. Отвечай дружелюбно, с лёгким юмором и по делу.";
+    ? `You are Wednesday, an intelligent mentor of the "Wednesday & Thursday" AI project created by Suleiman Isakhanov. Answer concisely, structurally, accurately in ${currentLang}.`
+    : `You are Thursday, a witty, brilliant friend from the "Wednesday & Thursday" AI project created by Suleiman Isakhanov. Answer friendly, smartly with humor in ${currentLang}.`;
   const r = await fetch("[https://text.pollinations.ai/openai](https://text.pollinations.ai/openai)", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -874,7 +994,7 @@ async function directChatFallback(text, hist) {
     })
   });
   const d = await r.json();
-  return d?.choices?.[0]?.message?.content || "Я на связи! Чем помочь?";
+  return d?.choices?.[0]?.message?.content || (currentLang === "de" ? "Ich bin bereit!" : currentLang === "en" ? "Ready to help!" : "Я на связи!");
 }
 
 async function chatSend(text) {
@@ -893,7 +1013,7 @@ async function chatSend(text) {
         history: hist,
         stream: false,
         uid: userEmail,
-        mobile: isMobile
+        lang: currentLang
       })
     });
     const j = await r.json();
@@ -904,7 +1024,7 @@ async function chatSend(text) {
   } catch {
     full = await directChatFallback(text, hist);
   }
-  full = strip(full) || "Готов помочь!";
+  full = strip(full);
   b.innerHTML = md(full);
   cur.msgs.push({ role: "assistant", content: full, who: mode });
   speakText(full, mode);
@@ -922,7 +1042,11 @@ function showImg(b, m) {
 
   const x = document.createElement("div");
   x.className = "acts";
-  x.innerHTML = '<button type="button">⬇ Скачать</button><button type="button">🔄 Ещё вариант</button><button type="button">🔍 Увеличить</button>';
+  const dlTxt = currentLang === "de" ? "⬇ Herunterladen" : currentLang === "en" ? "⬇ Download" : "⬇ Скачать";
+  const retryTxt = currentLang === "de" ? "🔄 Noch einmal" : currentLang === "en" ? "🔄 Variant" : "🔄 Ещё вариант";
+  const zoomTxt = currentLang === "de" ? "🔍 Vergrößern" : currentLang === "en" ? "🔍 Zoom" : "🔍 Увеличить";
+  
+  x.innerHTML = `<button type="button">${dlTxt}</button><button type="button">${retryTxt}</button><button type="button">${zoomTxt}</button>`;
   x.children[0].onclick = () => {
     const a = document.createElement("a");
     a.href = im.src;
@@ -939,13 +1063,13 @@ function showImg(b, m) {
   b.append(im, info, x);
 }
 
-const STYLE_TAGS = {
-  auto: "cinematic lighting, ultra detailed, high dynamic range, masterpiece",
-  photo: "photorealistic raw photography, 85mm lens, natural lighting, 8k resolution",
-  art: "epic digital concept art, dramatic lighting, artstation masterpiece, vibrant colors",
-  anime: "anime key visual illustration, Makoto Shinkai style, vibrant detailed background",
-  "3d": "3D octane render, Unreal Engine 5, raytracing, subsurface scattering",
-  pixel: "16-bit pixel art masterpiece, crisp pixels, retro game aesthetic"
+const STYLE_PROMPTS = {
+  auto: "cinematic masterpiece digital art, dramatic volumetric lighting, ultra-detailed textures, octane render, 8k",
+  photo: "award-winning raw photograph, natural sunlight, highly detailed 85mm lens, sharp focus, 8k uhd",
+  art: "legendary concept artwork by artstation trending masters, rich vibrant color palette, dynamic lighting",
+  anime: "stunning high-end anime movie visual by Makoto Shinkai studio, rich colors, intricate background",
+  "3d": "hyperrealistic 3D CGI render, Unreal Engine 5 render, cinematic lighting, raytracing, subsurface scattering",
+  pixel: "authentic 16-bit detailed pixel art masterpiece, crisp pixels, retro game vibe"
 };
 
 const ASPECT_DIMS = {
@@ -956,7 +1080,7 @@ const ASPECT_DIMS = {
   wide: [1440, 640]
 };
 
-async function buildClusterUrls(prompt, styleKey, aspectKey, qualityKey) {
+async function craftHighQualityArtUrl(prompt, styleKey, aspectKey, qualityKey) {
   let en = prompt;
   try {
     const tr = await fetch(`[https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=$](https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=$){encodeURIComponent(prompt)}`);
@@ -965,19 +1089,19 @@ async function buildClusterUrls(prompt, styleKey, aspectKey, qualityKey) {
   } catch {}
 
   if (/зульфикар|zulfiqar/i.test(prompt)) {
-    en += ", legendary Islamic bifurcated double-pointed sword Zulfiqar, glowing golden calligraphy, epic neon sparks";
-  } else if (/дракон/i.test(prompt)) {
-    en += ", majestic fire-breathing dragon with glowing scales soaring over a neon night city";
+    en = "legendary Islamic bifurcated double-bladed scimitar sword Zulfiqar with iconic split twin-point tips, glowing golden Arabic calligraphy engravings, intricate damascus steel blade, radiant neon amber sparks, floating in majestic cosmic atmosphere";
+  } else if (/дракон|dragon/i.test(prompt)) {
+    en = "majestic colossal fire dragon with glowing crimson and gold scales, breathing fiery orange flames, soaring above a futuristic cyberpunk metropolis night city";
   }
 
-  const styleTail = STYLE_TAGS[styleKey] || STYLE_TAGS.auto;
-  const fullPrompt = `${en}, ${styleTail}`.slice(0, 800);
+  const styleTail = STYLE_PROMPTS[styleKey] || STYLE_PROMPTS.auto;
+  const completePrompt = `${en}, ${styleTail}, intricate details, award winning composition`.slice(0, 900);
   const [W, H] = ASPECT_DIMS[aspectKey] || [1024, 1024];
-  const seed = Math.floor(Math.random() * 1e9);
+  const seed = Math.floor(Math.random() * 9999999);
   const mdl = qualityKey === "fast" ? "turbo" : "flux";
 
-  const imgUrl = `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(fullPrompt)}?width=${W}&height=${H}&seed=${seed}&model=${mdl}&nologo=true`;
-  return { url: imgUrl, W, H, mdl };
+  const directUrl = `[https://image.pollinations.ai/prompt/$](https://image.pollinations.ai/prompt/$){encodeURIComponent(completePrompt)}?width=${W}&height=${H}&seed=${seed}&model=${mdl}&nologo=true&enhance=true`;
+  return { url: directUrl, W, H, mdl };
 }
 
 async function drawSend(prompt, shown) {
@@ -993,7 +1117,8 @@ async function drawSend(prompt, shown) {
     return;
   }
 
-  speakText("Суббота приняла заказ! Рисую...", "sat");
+  const t = I18N[currentLang];
+  speakText(t.orderAccepted, "sat");
 
   cur.msgs.push({ role: "user", content: shown });
   const ub = bubble("user"); ub.textContent = shown;
@@ -1006,7 +1131,7 @@ async function drawSend(prompt, shown) {
   const timer = setInterval(tick, 1000);
 
   try {
-    const built = await buildClusterUrls(prompt, styleKey, aspectKey, qualityKey);
+    const art = await craftHighQualityArtUrl(prompt, styleKey, aspectKey, qualityKey);
     userCoins = Math.max(0, userCoins - cost);
     setWalletCoins(userEmail, userCoins);
     updateAccountUI();
@@ -1016,21 +1141,22 @@ async function drawSend(prompt, shown) {
       who: "sat",
       content: "🎨 " + prompt,
       prompt,
-      src: built.url,
-      w: built.W,
-      h: built.H,
-      info: `${built.W}×${built.H} · ${built.mdl} · списано ${cost} 🪙 (осталось ${userCoins} 🪙)`
+      src: art.url,
+      w: art.W,
+      h: art.H,
+      info: `${art.W}×${art.H} · ${art.mdl} · -${cost} 🪙 (${userCoins} 🪙)`
     };
     cur.msgs.push(m);
     b.innerHTML = "";
     showImg(b, m);
-    speakText("Готово! Посмотри, какой арт получился.", "sat");
+    speakText(t.artDone, "sat");
   } finally {
     clearInterval(timer);
   }
 }
 
-const DRAW_RE = /^(?:\/нарисуй|нарисуй|\/суббота|(?:сгенерируй|создай|сделай)(?:\s+мне)?(?:\s+картинк\S*|\s+фото\S*|\s+изображени\S*|\s+арт)?)\s+([\s\S]+)$/i;
+// Полноценный разбор запросов на рисование
+const DRAW_RE = /^(?:\/нарисуй|нарисуй|\/суббота|draw|paint|zeichne|(?:сгенерируй|создай|сделай)(?:\s+мне)?(?:\s+картинк\S*|\s+фото\S*|\s+изображени\S*|\s+арт)?)\s+([\s\S]+)$/i;
 
 window.go = async function(text) {
   text = String(text || "").trim();
@@ -1080,9 +1206,7 @@ $("drawT").onclick = () => {
   drawOn = !drawOn;
   $("drawT").classList.toggle("on", drawOn);
   $("dbar").classList.toggle("on", drawOn);
-  $("q").placeholder = drawOn
-    ? "Опиши картинку для Субботы…"
-    : "Скажи что-нибудь или напиши «нарисуй огненного дракона»";
+  $("q").placeholder = drawOn ? I18N[currentLang].drawPlaceholder : I18N[currentLang].qPlaceholder;
 };
 
 function setMode(m) {
@@ -1090,36 +1214,22 @@ function setMode(m) {
   ls.set("mode", mode);
   $("bd").textContent = mode === "wednesday" ? "С" : "Ч";
   document.querySelectorAll("#modes button").forEach((b) => b.classList.toggle("on", b.dataset.m === mode));
-  if (voiceEnabled) speakText(mode === "wednesday" ? "На связи Среда. Чем займёмся?" : "Привет! Четверг в деле. Что обсудим?", mode);
+  if (voiceEnabled) speakText(mode === "wednesday" ? "Среда на связи." : "Четверг на связи!", mode);
 }
 $("modes").onclick = (e) => {
   const b = e.target.closest("button");
   if (b) setMode(b.dataset.m);
 };
 
-let ui = ls.get("ui", "auto");
-const phone = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent);
-const layout = () => ui === "mobile" ? "m" : ui === "pc" ? "pc" : innerWidth <= 780 ? "m" : "pc";
-
-function applyUI() {
-  const L = layout(), h = document.documentElement;
-  h.classList.toggle("m", L === "m");
-  h.classList.toggle("frame", L === "m" && ui === "mobile" && !phone);
-  document.querySelectorAll(".uib").forEach((b) => {
-    b.textContent = L === "m" ? "🖥 Версия для ПК" : "📱 Мобильная версия";
-  });
-  if (L !== "m") document.body.classList.remove("open");
-}
 function toggleUI() {
-  ui = layout() === "m" ? "pc" : "mobile";
-  ls.set("ui", ui);
-  applyUI();
+  const isFrame = document.documentElement.classList.toggle("frame");
+  $("uiToggleBtn").textContent = isFrame ? "🖥 ПК вид" : "📱 Мобильный вид";
 }
-document.querySelectorAll(".uib").forEach((b) => (b.onclick = toggleUI));
-addEventListener("resize", () => { if (ui === "auto") applyUI(); });
-applyUI();
+$("uiToggleBtn").onclick = toggleUI;
+$("topUiBtn").onclick = toggleUI;
 
 $("srch").oninput = renderList;
+
 const ACC = [
   ["#ff8a1f", "#ffb04a", "#ff6a00"],
   ["#3b9cff", "#6cc0ff", "#1f6bff"],
@@ -1159,7 +1269,7 @@ if (!SR) {
   $("mic").style.display = "none";
 } else {
   const rec = new SR();
-  rec.lang = "ru-RU";
+  rec.lang = currentLang === "de" ? "de-DE" : currentLang === "en" ? "en-US" : "ru-RU";
   let on = false;
   rec.onresult = (e) => {
     $("q").value += ($("q").value ? " " : "") + e.results[0][0].transcript;
@@ -1170,13 +1280,19 @@ if (!SR) {
   rec.onend = () => { on = false; $("mic").classList.remove("on"); };
   $("mic").onclick = () => {
     if (on) return rec.stop();
-    try { rec.start(); on = true; $("mic").classList.add("on"); } catch {}
+    try {
+      rec.lang = currentLang === "de" ? "de-DE" : currentLang === "en" ? "en-US" : "ru-RU";
+      rec.start();
+      on = true;
+      $("mic").classList.add("on");
+    } catch {}
   };
 }
 
 setMode(mode);
 updateAccountUI();
 updateVoiceUI();
+applyLanguage();
 renderList();
 renderMsgs();
 </script>
